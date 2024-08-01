@@ -1,18 +1,15 @@
 "use client";
 import React, {useEffect, useRef, useState} from "react";
-import {PokemonT, TypeColors} from "@/app/yay/PokemonAPITypes";
 import Image from "next/image";
 import {PokemonSDK} from "@/app/pokemon/PokemonSDK";
 import {useRouter} from "next/navigation";
-import InputWithLabel from "@/app/awsAzureForm/InputWithLabel";
+import didYouMean from "didyoumean";
+import names from "@/app/pokemon/names.json";
+import Link from "next/link";
 
 
 export default function Pokemon({params}: { params: { pokemon: string } }) {
-    // const [pokemon, setPokemon] = useState<PokemonT | null>(null);
-    // const [sprites, setSprites] = useState<string[]>([]);
-    // const sprites = useRef<string[]>([]);
     const [isLoading, setLoading] = useState(true);
-    // const [pokemonSprite, setPokemonSprite] = useState("");
     const pokeSdk = useRef<PokemonSDK>(new PokemonSDK());
     const [pokemonInputValue, setPokemonInputValue] = useState("");
     const router = useRouter();
@@ -20,7 +17,6 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
 
 
     useEffect(() => {
-        // pokeSdk.current = ;
         if (pokeSdk.current !== null) {
             setLoading(true);
             setIsError(false);
@@ -33,54 +29,9 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                     setLoading(false);
                     setIsError(true);
                 }, 1000);
-                // setIsError(true);
             });
         }
     }, []);
-
-    // const getAllOfficialSprites = (data: PokemonT) => {
-    //     if (data.sprites) {
-    //         recurseSprites(data.sprites, "official");
-    //     }
-    // };
-    // const handleFetchResult = (data: any) => {
-    //     console.log("data", JSON.stringify(data));
-    //     // setPokemon(data);
-    //     // getAllValidSprites(data);
-    //     // getAllOfficialSprites(data);
-    //     // lookForFrontSprite(data);
-    //     // console.log("sprites:", sprites);
-    //     // console.log("data:", JSON.stringify(data));
-    //     // rotateSprite();
-    //     // setPokemonSprite(data.sprites.other["official-artwork"].front_default);
-    //     // setPokemonColor(getPokemonTypeName(data as PokemonT));
-    //     setLoading(false);
-    // }
-
-    // const lookForFrontSprite = (data: PokemonT | null) => {
-    //     const defaultLogo = "https://press.pokemon.com/en/products/Pokemon-Logo-55300";
-    //     if (data === null) return defaultLogo;
-    //     //sprites array is filled in the recurseSpritesFunction, called in getAllOfficialSprites
-    //     // then we just get the first sprite in the array to get the front sprite, or default to poke logo if none found!
-    //     const sprite = sprites.current[0];
-    //     setPokemonSprite(sprite || defaultLogo);//default pokemon logo for backup :]
-    // };
-
-
-    // const recurseSprites = (data: any, pattern?: string) => {
-    //     Object.keys(data).some((k) => {
-    //         // console.log(k);
-    //         if (data[k] !== null) {
-    //             if (typeof data[k] === "object") {
-    //                 recurseSprites(data[k], pattern);
-    //             } else {
-    //                 if (pattern === undefined || data[k].includes(pattern)) {
-    //                     sprites.current.push(data[k]);
-    //                 }
-    //             }
-    //         }
-    //     });
-    // };
 
     /**
      *
@@ -106,6 +57,21 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
         return (yiq >= 128) ? "black" : "white";
     };
 
+    /**
+     * returns a Capitalized version of the given string
+     * @param str
+     */
+    const toCapitalize =  (str: string) => {
+        const split = str.split(" ");
+        const caps = split.map( (word) => {
+            const firstLetter = word.charAt(0).toUpperCase();
+            const rest = word.substring(1);
+            return firstLetter + rest;
+        });
+        return caps.join("");
+
+    }
+
 
     if (isLoading) {
         return (
@@ -120,6 +86,7 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                     We couldn&apos;t find a pokemon with the name &quot;{decodeURI(params.pokemon)}&quot; :[
                     Please try a different pokemon!
                 </p>
+                <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800" href={`/pokemon/${didYouMean(decodeURI(params.pokemon), names)}`}>Did you mean &quot;{toCapitalize(didYouMean(decodeURI(params.pokemon), names).toString())}&quot;?</Link>
                 <form action="" onSubmit={(e: React.FormEvent) => {//todo: create a component for this form!
                     e.preventDefault();
                     router.push(pokemonInputValue);

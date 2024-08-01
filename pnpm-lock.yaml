@@ -5,6 +5,12 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@types/didyoumean':
+    specifier: ^1.2.2
+    version: 1.2.2
+  didyoumean:
+    specifier: ^1.2.2
+    version: 1.2.2
   next:
     specifier: 14.2.5
     version: 14.2.5(@babel/core@7.25.2)(react-dom@18.3.1)(react@18.3.1)
@@ -874,6 +880,10 @@ packages:
       '@babel/types': 7.25.2
     dev: true
 
+  /@types/didyoumean@1.2.2:
+    resolution: {integrity: sha512-hw9hID9YxTbtK5c/+u10ZGWIQvt8kZ8ZsR7+xr2G1Yw05QCGi7z0KuHSltwiw38eqeNbkmAd7VC3RSvIu4KOxA==}
+    dev: false
+
   /@types/estree@1.0.5:
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
     dev: true
@@ -1572,7 +1582,6 @@ packages:
 
   /didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
-    dev: true
 
   /dir-glob@3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
