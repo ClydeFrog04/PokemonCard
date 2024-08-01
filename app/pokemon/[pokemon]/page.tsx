@@ -124,10 +124,12 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                     e.preventDefault();
                     router.push(pokemonInputValue);
                 }}>
-                    <input autoFocus={true} className="text-black rounded-[4px] p-[4px]" placeholder={"enter a pokemon to find!"} onChange={(e) => {
+                    <input autoFocus={true} className="text-black rounded-[4px] p-[4px]"
+                           placeholder={"enter a pokemon to find!"} onChange={(e) => {
                         setPokemonInputValue(e.target.value);
                     }}/>
                 </form>
+
             </main>
         );
     }
@@ -137,10 +139,8 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
             {!isLoading &&
                 <>
                     <div className="cardContainer flex flex-col items-center gap-4">
-                        <div className={"pokemonCard relative"}>
-                            <div id={pokeSdk.current.getPokemonName() + "Card"}
-                                 className={`flex justify-items-center justify-center flex-col
-                         content-center items-center max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow-gray-300 shadow-2xl
+                        <article id={pokeSdk.current.getPokemonName() + "Card"} className={`relative flex justify-items-center justify-center flex-col
+                         content-center items-center max-w-sm p-6 bg-white rounded-lg shadow-gray-300 shadow-2xl
                          before:content-['']
                          before:bg-${pokeSdk.current.getPokemonTypeName()}
                          before:absolute
@@ -149,60 +149,61 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                          before:w-full
                          before:rounded-t-lg
                          before:rounded-b-[51%]
+                         before:
                          `}>
-                                <Image
-                                    className="z-10"
-                                    src={pokeSdk.current.getDisplaySprite()}
-                                    alt="pokemon Logo"
-                                    width={200}
-                                    height={200}
-                                    priority
-                                />
-                                <h5 className="mb-2 text-2xl font-bold tracking-tight text-black text-center capitalize bg">
-                                    {pokeSdk.current.getPokemonName()}
-                                </h5>
-                                <p className={`font-normal text-gray-700 dark:text-gray-400 text-center px-4 py-1 rounded-2xl bg-${pokeSdk.current.getPokemonTypeName()}`}
-                                   style={{
-                                       color: (getContrastYIQ(pokeSdk.current.getPokemonTypeColour())),
-                                       // backgroundColor: pokeSdk.current!.getPokemonTypeColour()
-                                   }}
-                                >
-                                    {pokeSdk.current.getPokemonTypeName()}
-                                </p>
-                                <section
-                                    className="font-normal text-gray-700 dark:text-gray-400 text-center flex flex-row space-x-8 mt-8">
-                                    <div className="stat flex flex-col">
+                            <Image
+                                className="z-10"
+                                src={pokeSdk.current.getDisplaySprite()}
+                                alt="pokemon Logo"
+                                width={200}
+                                height={200}
+                                priority
+                            />
+                            <h5 className="mb-2 text-2xl font-bold tracking-tight text-black text-center capitalize bg">
+                                {pokeSdk.current.getPokemonName()}
+                            </h5>
+                            <p className={`font-normal text-gray-700 dark:text-gray-400 text-center px-4 py-1 rounded-2xl bg-${pokeSdk.current.getPokemonTypeName()}`}
+                               style={{
+                                   color: (getContrastYIQ(pokeSdk.current.getPokemonTypeColour())),
+                                   // backgroundColor: pokeSdk.current!.getPokemonTypeColour()
+                               }}
+                            >
+                                {pokeSdk.current.getPokemonTypeName()}
+                            </p>
+                            <section
+                                className="font-normal text-gray-700 dark:text-gray-400 text-center flex flex-row space-x-8 mt-8">
+                                <div className="stat flex flex-col">
                                 <span className="text-black font-bold text-2xl">
                                      {pokeSdk.current.getPokemonAttackStat()}
                                  </span>
-                                        <span>
+                                    <span>
                                     {pokeSdk.current.getPokemonAttackStatName()}
                                 </span>
-                                    </div>
-                                    <div className="stat flex flex-col">
+                                </div>
+                                <div className="stat flex flex-col">
                                 <span className="text-black font-bold text-2xl">
                                      {pokeSdk.current.getPokemonDefenseStat()}
                                  </span>
-                                        <span>
+                                    <span>
                                     {pokeSdk.current.getPokemonDefenseStatName()}
                                 </span>
-                                    </div>
-                                    <div className="stat flex flex-col">
+                                </div>
+                                <div className="stat flex flex-col">
                                 <span className="text-black font-bold text-2xl">
                                      {pokeSdk.current.getPokemonSpeed()}
                                  </span>
-                                        <span>
+                                    <span>
                                     {pokeSdk.current.getPokemonSpeedName()}
                                 </span>
-                                    </div>
-                                </section>
-                            </div>
-                        </div>
+                                </div>
+                            </section>
+                        </article>
                         <form action="" onSubmit={(e: React.FormEvent) => {
                             e.preventDefault();
                             router.push(pokemonInputValue);
                         }}>
-                            <input autoFocus={true} className="text-black rounded-[4px] p-[4px]" placeholder={"enter a pokemon to find!"} onChange={(e) => {
+                            <input autoFocus={true} className="text-black rounded-[4px] p-[4px]"
+                                   placeholder={"enter a pokemon to find!"} onChange={(e) => {
                                 setPokemonInputValue(e.target.value);
                             }}/>
                         </form>

@@ -1,4 +1,5 @@
 import {PokemonT, TypeColors} from "@/app/yay/PokemonAPITypes";
+// import {writeFile} from "fs";
 
 export class PokemonSDK {
     // pokemonName: string;
@@ -24,6 +25,7 @@ export class PokemonSDK {
     public getDisplaySprite() {
         return this.sprites[0];
     }
+
     public getBackDisplaySprite() {
         return this.sprites[1];
     }
@@ -51,10 +53,7 @@ export class PokemonSDK {
             .then((data) => {
                 this.pokemon = data;
                 this.getAndSetAllOfficialSprites(data);
-            })
-            // .catch((e) => {
-            //     console.log("terrible", Object.keys(e));//todo: we need to do something when there is a failure to get the pokemon
-            // });
+            });
     }
 
     /**
@@ -101,7 +100,7 @@ export class PokemonSDK {
         return this.pokemon.types[0].type.name;
     };
 
-    public getPokemonAttackStat() {//todo: rename thes to their actual things
+    public getPokemonAttackStat() {
         if (!this.pokemon) return 0;
         return this.pokemon.stats[1].base_stat;
     }
@@ -131,25 +130,3 @@ export class PokemonSDK {
         return this.pokemon.stats[5].stat.name;
     }
 }
-
-// fetch(baseUrl)//todo: make an sdk for this stuff :]
-//     .then((res) => {
-//         console.log(res);
-//         return res.json();
-//     })
-//     .then((data) => {
-//         console.log("data", JSON.stringify(data));
-//         setPokemon(data);
-//         // getAllValidSprites(data);
-//         getAllGifSprites(data);
-//         lookForFrontSprite(data);
-//         console.log(sprites);
-//         // console.log("data:", JSON.stringify(data));
-//         // rotateSprite();
-//         setPokemonSprite(data.sprites.other["official-artwork"].front_default);
-//         // setPokemonColor(getPokemonTypeName(data as PokemonT));
-//         setLoading(false);//todo this probably needs to be somewhere else!
-//
-//     }).catch((e) => {
-//     console.log("terrible", Object.keys(e));
-// });
