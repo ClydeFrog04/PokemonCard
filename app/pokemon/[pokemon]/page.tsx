@@ -9,25 +9,28 @@ import {useRouter} from "next/navigation";
 export default function Pokemon({params}: { params: { pokemon: string } }) {
     const [pokemon, setPokemon] = useState<PokemonT | null>(null);
     // const [sprites, setSprites] = useState<string[]>([]);
-    const sprites = useRef<string[]>([]);
+    // const sprites = useRef<string[]>([]);
     const [isLoading, setLoading] = useState(true);
     const [pokemonSprite, setPokemonSprite] = useState("");
-    const pokeSdk = useRef<PokemonSDK>();
+    const pokeSdk = useRef<PokemonSDK>(new PokemonSDK());
     const [pokemonInputValue, setPokemonInputValue] = useState("");
     const router = useRouter();
 
 
     useEffect(() => {
-        pokeSdk.current = new PokemonSDK();
-        pokeSdk.current?.fetchPokemon(params.pokemon.toLowerCase(), handleFetchResult);
+        // pokeSdk.current = ;
+        if(pokeSdk.current !== null){
+            setLoading(true);
+            pokeSdk.current.fetchPokemon(params.pokemon.toLowerCase(), handleFetchResult);
+        }
     }, []);
 
-    const getAllOfficialSprites = (data: PokemonT) => {
-        if (data.sprites) {
-            recurseSprites(data.sprites, "official");
-        }
-    };
-    const handleFetchResult =  (data: any) => {
+    // const getAllOfficialSprites = (data: PokemonT) => {
+    //     if (data.sprites) {
+    //         recurseSprites(data.sprites, "official");
+    //     }
+    // };
+    const handleFetchResult = (data: any) => {
         console.log("data", JSON.stringify(data));
         setPokemon(data);
         // getAllValidSprites(data);
@@ -41,30 +44,30 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
         setLoading(false);
     }
 
-    const lookForFrontSprite = (data: PokemonT | null) => {
-        const defaultLogo = "https://press.pokemon.com/en/products/Pokemon-Logo-55300";
-        if (data === null) return defaultLogo;
-        //sprites array is filled in the recurseSpritesFunction, called in getAllOfficialSprites
-        // then we just get the first sprite in the array to get the front sprite, or default to poke logo if none found!
-        const sprite = sprites.current[0];
-        setPokemonSprite(sprite || defaultLogo);//default pokemon logo for backup :]
-    };
+    // const lookForFrontSprite = (data: PokemonT | null) => {
+    //     const defaultLogo = "https://press.pokemon.com/en/products/Pokemon-Logo-55300";
+    //     if (data === null) return defaultLogo;
+    //     //sprites array is filled in the recurseSpritesFunction, called in getAllOfficialSprites
+    //     // then we just get the first sprite in the array to get the front sprite, or default to poke logo if none found!
+    //     const sprite = sprites.current[0];
+    //     setPokemonSprite(sprite || defaultLogo);//default pokemon logo for backup :]
+    // };
 
 
-    const recurseSprites = (data: any, pattern?: string) => {
-        Object.keys(data).some((k) => {
-            // console.log(k);
-            if (data[k] !== null) {
-                if (typeof data[k] === "object") {
-                    recurseSprites(data[k], pattern);
-                } else {
-                    if (pattern === undefined || data[k].includes(pattern)) {
-                        sprites.current.push(data[k]);
-                    }
-                }
-            }
-        });
-    };
+    // const recurseSprites = (data: any, pattern?: string) => {
+    //     Object.keys(data).some((k) => {
+    //         // console.log(k);
+    //         if (data[k] !== null) {
+    //             if (typeof data[k] === "object") {
+    //                 recurseSprites(data[k], pattern);
+    //             } else {
+    //                 if (pattern === undefined || data[k].includes(pattern)) {
+    //                     sprites.current.push(data[k]);
+    //                 }
+    //             }
+    //         }
+    //     });
+    // };
 
     /**
      *
@@ -91,22 +94,7 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
             return "black";
         }
     };
-    const getPokemonTypeColour = () => {
-        const colour = (pokemon && TypeColors[getPokemonTypeName()]) as string;
-        console.log("colour", colour);
-        return colour;
-    };
-    const getPokemonTypeName = () => {
-        if (pokemon) {
-            console.log("type name", pokemon.types[0].type.name);
-            //before:bg-[${pokemonColor}]
-            console.log(`before:bg-${pokemon.types[0].type.name}`);
-            return pokemon.types[0].type.name;
-        } else {
-            //default to normal
-            return "normal";
-        }
-    };
+
 
     return (
         <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -143,8 +131,8 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                             </h5>
                             <p className="font-normal text-gray-700 dark:text-gray-400 text-center px-4 py-1 rounded-2xl"
                                style={{
-                                   color: (getContrastYIQ(getPokemonTypeColour())),
-                                   backgroundColor: getPokemonTypeColour()// pokemon.types[0].type.name
+                                   color: (getContrastYIQ(pokeSdk.current!.getPokemonTypeColour())),
+                                   backgroundColor: pokeSdk.current!.getPokemonTypeColour()// pokemon.types[0].type.name
                                }}
                             >
                                 {pokemon?.types[0].type.name}
