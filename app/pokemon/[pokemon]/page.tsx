@@ -117,14 +117,14 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
         return (
             <main className="flex min-h-screen flex-col items-center p-24 justify-center gap-4">
                 <p>
-                    We couldn&apos;t find a pokemon with the name &quot;{params.pokemon}&quot; :[
+                    We couldn&apos;t find a pokemon with the name &quot;{decodeURI(params.pokemon)}&quot; :[
                     Please try a different pokemon!
                 </p>
                 <form action="" onSubmit={(e: React.FormEvent) => {//todo: create a component for this form!
                     e.preventDefault();
                     router.push(pokemonInputValue);
                 }}>
-                    <input className="text-black rounded-[4px] p-[4px]" placeholder={"enter a pokemon to find!"} onChange={(e) => {
+                    <input autoFocus={true} className="text-black rounded-[4px] p-[4px]" placeholder={"enter a pokemon to find!"} onChange={(e) => {
                         setPokemonInputValue(e.target.value);
                     }}/>
                 </form>
@@ -161,10 +161,10 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                                 <h5 className="mb-2 text-2xl font-bold tracking-tight text-black text-center capitalize bg">
                                     {pokeSdk.current.getPokemonName()}
                                 </h5>
-                                <p className="font-normal text-gray-700 dark:text-gray-400 text-center px-4 py-1 rounded-2xl"
+                                <p className={`font-normal text-gray-700 dark:text-gray-400 text-center px-4 py-1 rounded-2xl bg-${pokeSdk.current.getPokemonTypeName()}`}
                                    style={{
-                                       color: (getContrastYIQ(pokeSdk.current!.getPokemonTypeColour())),
-                                       backgroundColor: pokeSdk.current!.getPokemonTypeColour()
+                                       color: (getContrastYIQ(pokeSdk.current.getPokemonTypeColour())),
+                                       // backgroundColor: pokeSdk.current!.getPokemonTypeColour()
                                    }}
                                 >
                                     {pokeSdk.current.getPokemonTypeName()}
@@ -173,26 +173,26 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                                     className="font-normal text-gray-700 dark:text-gray-400 text-center flex flex-row space-x-8 mt-8">
                                     <div className="stat flex flex-col">
                                 <span className="text-black font-bold text-2xl">
-                                     {pokeSdk.current.getPokemonStat1()}
+                                     {pokeSdk.current.getPokemonAttackStat()}
                                  </span>
                                         <span>
-                                    {pokeSdk.current.getPokemonStat1Name()}
+                                    {pokeSdk.current.getPokemonAttackStatName()}
                                 </span>
                                     </div>
                                     <div className="stat flex flex-col">
                                 <span className="text-black font-bold text-2xl">
-                                     {pokeSdk.current.getPokemonStat2()}
+                                     {pokeSdk.current.getPokemonDefenseStat()}
                                  </span>
                                         <span>
-                                    {pokeSdk.current.getPokemonStat2Name()}
+                                    {pokeSdk.current.getPokemonDefenseStatName()}
                                 </span>
                                     </div>
                                     <div className="stat flex flex-col">
                                 <span className="text-black font-bold text-2xl">
-                                     {pokeSdk.current.getPokemonStat5()}
+                                     {pokeSdk.current.getPokemonSpeed()}
                                  </span>
                                         <span>
-                                    {pokeSdk.current.getPokemonStat5Name()}
+                                    {pokeSdk.current.getPokemonSpeedName()}
                                 </span>
                                     </div>
                                 </section>
@@ -202,7 +202,7 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                             e.preventDefault();
                             router.push(pokemonInputValue);
                         }}>
-                            <input className="text-black rounded-[4px] p-[4px]" placeholder={"enter a pokemon to find!"} onChange={(e) => {
+                            <input autoFocus={true} className="text-black rounded-[4px] p-[4px]" placeholder={"enter a pokemon to find!"} onChange={(e) => {
                                 setPokemonInputValue(e.target.value);
                             }}/>
                         </form>

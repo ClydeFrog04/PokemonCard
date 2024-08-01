@@ -24,6 +24,9 @@ export class PokemonSDK {
     public getDisplaySprite() {
         return this.sprites[0];
     }
+    public getBackDisplaySprite() {
+        return this.sprites[1];
+    }
 
     public getPokemonName() {
         console.log("get name called:", this.pokemon?.name);
@@ -98,32 +101,32 @@ export class PokemonSDK {
         return this.pokemon.types[0].type.name;
     };
 
-    public getPokemonStat1() {
+    public getPokemonAttackStat() {//todo: rename thes to their actual things
         if (!this.pokemon) return 0;
         return this.pokemon.stats[1].base_stat;
     }
 
-    public getPokemonStat1Name() {
+    public getPokemonAttackStatName() {
         if (!this.pokemon) return 0;
         return this.pokemon.stats[1].stat.name;
     }
 
-    public getPokemonStat2() {
+    public getPokemonDefenseStat() {
         if (!this.pokemon) return 0;
         return this.pokemon.stats[2].base_stat;
     }
 
-    public getPokemonStat2Name() {
+    public getPokemonDefenseStatName() {
         if (!this.pokemon) return 0;
         return this.pokemon.stats[2].stat.name;
     }
 
-    public getPokemonStat5() {
+    public getPokemonSpeed() {
         if (!this.pokemon) return 0;
         return this.pokemon.stats[5].base_stat;
     }
 
-    public getPokemonStat5Name() {
+    public getPokemonSpeedName() {
         if (!this.pokemon) return 0;
         return this.pokemon.stats[5].stat.name;
     }
