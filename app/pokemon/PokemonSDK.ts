@@ -22,10 +22,15 @@ export class PokemonSDK {
     };
      */
     public getDisplaySprite() {
-        return this.sprites[0]
+        return this.sprites[0];
     }
 
-    public async fetchPokemon(pokemonName: string, callback: (data: any) => void) {
+    public getPokemonName() {
+        console.log("get name called:", this.pokemon?.name);
+        return this.pokemon?.name;
+    }
+
+    public async fetchPokemon(pokemonName: string) {
         const baseUrl = `https://pokeapi.co/api/v2/pokemon/${pokemonName}`;
         // await fetch(baseUrl)
         //     .then((res) => {
@@ -35,7 +40,7 @@ export class PokemonSDK {
         //     .then(callback).catch((e) => {
         //         console.log("terrible", Object.keys(e));
         //     });
-        await fetch(baseUrl)
+        return await fetch(baseUrl)
             .then((res) => {
                 console.log(res);
                 return res.json();
@@ -43,9 +48,10 @@ export class PokemonSDK {
             .then((data) => {
                 this.pokemon = data;
                 this.getAndSetAllOfficialSprites(data);
-            }).catch((e) => {
-                console.log("terrible", Object.keys(e));//todo: we need to do something when there is a failure to get the pokemon
-            });
+            })
+            // .catch((e) => {
+            //     console.log("terrible", Object.keys(e));//todo: we need to do something when there is a failure to get the pokemon
+            // });
     }
 
     /**
@@ -53,7 +59,7 @@ export class PokemonSDK {
      * @param data
      */
     private getAndSetAllOfficialSprites = (data: PokemonT) => {
-        if(data === null){
+        if (data === null) {
             //if we have no pokemon data, set a default sprite and return
             this.sprites.push("https://press.pokemon.com/en/products/Pokemon-Logo-55300");
             return;
@@ -61,6 +67,7 @@ export class PokemonSDK {
         this.sprites = [];
         if (data.sprites) {
             this.recurseSprites(data.sprites, "official");
+            console.log("we found some sprites!", this.sprites);
         }
     };
 
@@ -71,27 +78,55 @@ export class PokemonSDK {
             }
             if (typeof data[k] === "object") {
                 this.recurseSprites(data[k], pattern);
-            } else if (pattern === undefined || data[k].includes(pattern)){
+            } else if (pattern === undefined || data[k].includes(pattern)) {
                 this.sprites.push(data[k]);
             }
         });
     };
+
     public getPokemonTypeColour = () => {
         const colour = (this.pokemon && TypeColors[this.getPokemonTypeName()]) as string;
         console.log("colour", colour);
         return colour;
     };
     public getPokemonTypeName = () => {
-        if (this.pokemon) {
-            console.log("type name", this.pokemon.types[0].type.name);
-            //before:bg-[${pokemonColor}]
-            console.log(`before:bg-${this.pokemon.types[0].type.name}`);
-            return this.pokemon.types[0].type.name;
-        } else {
-            //default to normal
-            return "normal";
-        }
+        if (!this.pokemon) return "normal";
+
+        console.log("type name", this.pokemon.types[0].type.name);
+        //before:bg-[${pokemonColor}]
+        console.log(`before:bg-${this.pokemon.types[0].type.name}`);
+        return this.pokemon.types[0].type.name;
     };
+
+    public getPokemonStat1() {
+        if (!this.pokemon) return 0;
+        return this.pokemon.stats[1].base_stat;
+    }
+
+    public getPokemonStat1Name() {
+        if (!this.pokemon) return 0;
+        return this.pokemon.stats[1].stat.name;
+    }
+
+    public getPokemonStat2() {
+        if (!this.pokemon) return 0;
+        return this.pokemon.stats[2].base_stat;
+    }
+
+    public getPokemonStat2Name() {
+        if (!this.pokemon) return 0;
+        return this.pokemon.stats[2].stat.name;
+    }
+
+    public getPokemonStat5() {
+        if (!this.pokemon) return 0;
+        return this.pokemon.stats[5].base_stat;
+    }
+
+    public getPokemonStat5Name() {
+        if (!this.pokemon) return 0;
+        return this.pokemon.stats[5].stat.name;
+    }
 }
 
 // fetch(baseUrl)//todo: make an sdk for this stuff :]
