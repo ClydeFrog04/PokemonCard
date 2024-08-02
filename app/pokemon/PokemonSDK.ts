@@ -1,4 +1,5 @@
 import {PokemonT, TypeColors} from "@/app/yay/PokemonAPITypes";
+
 // import {writeFile} from "fs";
 
 export class PokemonSDK {
@@ -6,10 +7,17 @@ export class PokemonSDK {
     // baseUrl: string;
     private sprites: string[] = [];
     private pokemon: PokemonT | null = null;
+    private readonly isShiny: boolean;
 
     constructor() {
         // this.pokemonName = pokemonName;
+        const num = Math.floor(Math.random() * 10);
+        console.log("getdisplaysprite called", num);
+        this.isShiny = num % 2 === 0;
+    }
 
+    public getIsShiny(){
+        return this.isShiny;
     }
 
     /*
@@ -23,7 +31,7 @@ export class PokemonSDK {
     };
      */
     public getDisplaySprite() {
-        return this.sprites[0];
+        return this.sprites[this.isShiny ? 1 : 0];
     }
 
     public getBackDisplaySprite() {
@@ -31,7 +39,7 @@ export class PokemonSDK {
     }
 
     public getPokemonName() {
-        console.log("get name called:", this.pokemon?.name);
+        // console.log("get name called:", this.pokemon?.name);
         return this.pokemon?.name;
     }
 
@@ -47,7 +55,7 @@ export class PokemonSDK {
         //     });
         return await fetch(baseUrl)
             .then((res) => {
-                console.log(res);
+                // console.log("pokemon fetched was:", res);
                 return res.json();
             })
             .then((data) => {
@@ -69,7 +77,6 @@ export class PokemonSDK {
         this.sprites = [];
         if (data.sprites) {
             this.recurseSprites(data.sprites, "official");
-            console.log("we found some sprites!", this.sprites);
         }
     };
 
@@ -88,15 +95,11 @@ export class PokemonSDK {
 
     public getPokemonTypeColour = () => {
         const colour = (this.pokemon && TypeColors[this.getPokemonTypeName()]) as string;
-        console.log("colour", colour);
         return colour;
     };
     public getPokemonTypeName = () => {
         if (!this.pokemon) return "normal";
 
-        console.log("type name", this.pokemon.types[0].type.name);
-        //before:bg-[${pokemonColor}]
-        console.log(`before:bg-${this.pokemon.types[0].type.name}`);
         return this.pokemon.types[0].type.name;
     };
 

@@ -1,5 +1,5 @@
 "use client";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import Image from "next/image";
 import {PokemonSDK} from "@/app/pokemon/PokemonSDK";
 import {useRouter} from "next/navigation";
@@ -10,25 +10,38 @@ import Link from "next/link";
 
 export default function Pokemon({params}: { params: { pokemon: string } }) {
     const [isLoading, setLoading] = useState(true);
-    const pokeSdk = useRef<PokemonSDK>(new PokemonSDK());
+    // const pokeSdk = useRef<PokemonSDK>(new PokemonSDK());
+    const pokeSdk = useMemo(() => new PokemonSDK(), []);
     const [pokemonInputValue, setPokemonInputValue] = useState("");
     const router = useRouter();
     const [isError, setIsError] = useState(false);
+    const [didYouMeanStr, setDidYouMeanStr] = useState("");
+    const [pokemonHistory, setPokemonHistory] = useState<string[]>(["eevee"]);
+    const [dropdownPokemon, setDropdownPokemon] = useState(pokemonHistory[0]);
+
+
+
+    const displaySprite = useRef<string>("");
 
 
     useEffect(() => {
-        if (pokeSdk.current !== null) {
+        console.log("selected poke at mount:", dropdownPokemon);
+        if (pokeSdk !== null) {
             setLoading(true);
             setIsError(false);
-            pokeSdk.current.fetchPokemon(params.pokemon.toLowerCase()).then((data) => {
-                console.log("Fetch done!", data);
+            pokeSdk.fetchPokemon(params.pokemon.toLowerCase()).then((data) => {
+                // console.log("Fetch done!", data);
+                console.log("fetching?");
+                displaySprite.current = pokeSdk.getDisplaySprite();
+                pokemonHistory.push(params.pokemon);
                 setLoading(false);
             }).catch((err) => {
                 console.log("Oh no a bad happened");
-                setTimeout(() => {
-                    setLoading(false);
-                    setIsError(true);
-                }, 1000);
+                // setTimeout(() => {
+                setDidYouMeanStr(getDidYouMeanString(params.pokemon));
+                setLoading(false);
+                setIsError(true);
+                // }, 1000);
             });
         }
     }, []);
@@ -44,7 +57,7 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
             const num = parseInt(value);
             return !isNaN(num);
         });
-        console.log("split", split);
+        // console.log("split", split);
         if (split === undefined) {
             //default to black- maybe not the best!
             return "black";
@@ -61,15 +74,34 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
      * returns a Capitalized version of the given string
      * @param str
      */
-    const toCapitalize =  (str: string) => {
+    const toCapitalize = (str: string) => {
         const split = str.split(" ");
-        const caps = split.map( (word) => {
+        const caps = split.map((word) => {
             const firstLetter = word.charAt(0).toUpperCase();
             const rest = word.substring(1);
             return firstLetter + rest;
         });
         return caps.join("");
+    };
 
+    const getDidYouMeanString = (attempt: string): string => {
+        //todo: this returns null when there is no match, rather than the array or string it claims, need a better default system:[
+        const didYouMeanStr = didYouMean(attempt, names);
+        console.log(didYouMeanStr);
+        if (Array.isArray(didYouMeanStr)) {
+            console.log("we have an array:", JSON.stringify(didYouMeanStr));
+            return didYouMeanStr[0];
+        }
+        if (didYouMeanStr === null) {
+            return "none";
+        }
+        console.log("no array, but it failed:", didYouMeanStr);
+        return didYouMeanStr;
+    };
+    function handlePokemonChange(e: React.ChangeEvent<HTMLSelectElement>){
+        // router.push(e.target.value);
+        setDropdownPokemon(e.target.value);
+        console.log("e");
     }
 
 
@@ -86,11 +118,23 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                     We couldn&apos;t find a pokemon with the name &quot;{decodeURI(params.pokemon)}&quot; :[
                     Please try a different pokemon!
                 </p>
-                <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800" href={`/pokemon/${didYouMean(decodeURI(params.pokemon), names)}`}>Did you mean &quot;{toCapitalize(didYouMean(decodeURI(params.pokemon), names).toString())}&quot;?</Link>
-                <form action="" onSubmit={(e: React.FormEvent) => {//todo: create a component for this form!
+                {didYouMeanStr !== "none" &&
+                    <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800"
+                          href={`/pokemon/${didYouMeanStr}`}>Did you
+                        mean &quot;{toCapitalize(didYouMeanStr)}&quot;?</Link>
+                }
+                <form className={"grid gap-4"} action="" onSubmit={(e: React.FormEvent) => {//todo: create a component for this form!
                     e.preventDefault();
                     router.push(pokemonInputValue);
                 }}>
+                    <select className={""}  value={dropdownPokemon} name={"pokeSelect"} onChange={handlePokemonChange}>
+                        {pokemonHistory.map( (poke) => {
+                            return <option value={poke} key={poke}>{poke}</option>
+                        })}
+                    </select>
+                    <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800"
+                          href={`/pokemon/${dropdownPokemon}`}>Did you
+                        mean &quot;{toCapitalize(dropdownPokemon)}&quot;?</Link>
                     <input autoFocus={true} className="text-black rounded-[4px] p-[4px]"
                            placeholder={"enter a pokemon to find!"} onChange={(e) => {
                         setPokemonInputValue(e.target.value);
@@ -106,61 +150,60 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
             {!isLoading &&
                 <>
                     <div className="cardContainer flex flex-col items-center gap-4">
-                        <article id={pokeSdk.current.getPokemonName() + "Card"} className={`relative flex justify-items-center justify-center flex-col
+                        <article id={pokeSdk.getPokemonName() + "Card"} className={`relative flex justify-items-center justify-center flex-col
                          content-center items-center max-w-sm p-6 bg-white rounded-lg shadow-gray-300 shadow-2xl
                          before:content-['']
-                         before:bg-${pokeSdk.current.getPokemonTypeName()}
+                         before:bg-${pokeSdk.getPokemonTypeName()}
                          before:absolute
                          before:top-0
                          before:h-1/2
                          before:w-full
                          before:rounded-t-lg
                          before:rounded-b-[51%]
-                         before:
                          `}>
                             <Image
                                 className="z-10"
-                                src={pokeSdk.current.getDisplaySprite()}
+                                src={displaySprite.current}
                                 alt="pokemon Logo"
                                 width={200}
                                 height={200}
                                 priority
                             />
                             <h5 className="mb-2 text-2xl font-bold tracking-tight text-black text-center capitalize bg">
-                                {pokeSdk.current.getPokemonName()}
+                                {pokeSdk.getIsShiny() ? "shiny" : null} {pokeSdk.getPokemonName()}
                             </h5>
-                            <p className={`font-normal text-gray-700 dark:text-gray-400 text-center px-4 py-1 rounded-2xl bg-${pokeSdk.current.getPokemonTypeName()}`}
+                            <p className={`font-normal text-gray-700 dark:text-gray-400 text-center px-4 py-1 rounded-2xl bg-${pokeSdk.getPokemonTypeName()}`}
                                style={{
-                                   color: (getContrastYIQ(pokeSdk.current.getPokemonTypeColour())),
-                                   // backgroundColor: pokeSdk.current!.getPokemonTypeColour()
+                                   color: (getContrastYIQ(pokeSdk.getPokemonTypeColour())),
+                                   // backgroundColor: pokeSdk!.getPokemonTypeColour()
                                }}
                             >
-                                {pokeSdk.current.getPokemonTypeName()}
+                                {pokeSdk.getPokemonTypeName()}
                             </p>
                             <section
                                 className="font-normal text-gray-700 dark:text-gray-400 text-center flex flex-row space-x-8 mt-8">
                                 <div className="stat flex flex-col">
                                 <span className="text-black font-bold text-2xl">
-                                     {pokeSdk.current.getPokemonAttackStat()}
+                                     {pokeSdk.getPokemonAttackStat()}
                                  </span>
                                     <span>
-                                    {pokeSdk.current.getPokemonAttackStatName()}
+                                    {pokeSdk.getPokemonAttackStatName()}
                                 </span>
                                 </div>
                                 <div className="stat flex flex-col">
                                 <span className="text-black font-bold text-2xl">
-                                     {pokeSdk.current.getPokemonDefenseStat()}
+                                     {pokeSdk.getPokemonDefenseStat()}
                                  </span>
                                     <span>
-                                    {pokeSdk.current.getPokemonDefenseStatName()}
+                                    {pokeSdk.getPokemonDefenseStatName()}
                                 </span>
                                 </div>
                                 <div className="stat flex flex-col">
                                 <span className="text-black font-bold text-2xl">
-                                     {pokeSdk.current.getPokemonSpeed()}
+                                     {pokeSdk.getPokemonSpeed()}
                                  </span>
                                     <span>
-                                    {pokeSdk.current.getPokemonSpeedName()}
+                                    {pokeSdk.getPokemonSpeedName()}
                                 </span>
                                 </div>
                             </section>
