@@ -1,6 +1,6 @@
 "use client";
 import {useEffect, useState} from "react";
-import {PokemonT} from "@/app/yay/PokemonAPITypes";
+import {PokemonT} from "@/app/pokemon/PokemonAPITypes";
 import Image from "next/image";
 
 export default function Yay() {

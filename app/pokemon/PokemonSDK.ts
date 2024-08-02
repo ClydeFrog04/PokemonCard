@@ -1,4 +1,4 @@
-import {PokemonT, TypeColors} from "@/app/yay/PokemonAPITypes";
+import {PokemonT, TypeColors} from "@/app/pokemon/PokemonAPITypes";
 
 // import {writeFile} from "fs";
 
@@ -16,7 +16,7 @@ export class PokemonSDK {
         this.isShiny = num % 2 === 0;
     }
 
-    public getIsShiny(){
+    public getIsShiny() {
         return this.isShiny;
     }
 
@@ -45,17 +45,8 @@ export class PokemonSDK {
 
     public async fetchPokemon(pokemonName: string) {
         const baseUrl = `https://pokeapi.co/api/v2/pokemon/${pokemonName}`;
-        // await fetch(baseUrl)
-        //     .then((res) => {
-        //         console.log(res);
-        //         return res.json();
-        //     })
-        //     .then(callback).catch((e) => {
-        //         console.log("terrible", Object.keys(e));
-        //     });
         return await fetch(baseUrl)
             .then((res) => {
-                // console.log("pokemon fetched was:", res);
                 return res.json();
             })
             .then((data) => {

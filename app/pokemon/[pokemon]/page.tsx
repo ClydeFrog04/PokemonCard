@@ -17,8 +17,9 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
     const [isError, setIsError] = useState(false);
     const [didYouMeanStr, setDidYouMeanStr] = useState("");
     const [pokemonHistory, setPokemonHistory] = useState<string[]>(["eevee"]);
+    // const [pokemonHistory, setPokemonHistory] = useState<Set<string>>(new Set("eevee"));
     const [dropdownPokemon, setDropdownPokemon] = useState(pokemonHistory[0]);
-
+    // const [dropdownPokemon, setDropdownPokemon] = useState(pokemonHistory.values().ge);
 
 
     const displaySprite = useRef<string>("");
@@ -33,8 +34,14 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                 // console.log("Fetch done!", data);
                 console.log("fetching?");
                 displaySprite.current = pokeSdk.getDisplaySprite();
-                pokemonHistory.push(params.pokemon);
+                // pokemonHistory.push(params.pokemon);
+                const newHistory = [...pokemonHistory, params.pokemon];
+                console.log("new history:", JSON.stringify(newHistory));
+                setPokemonHistory(newHistory);
+                // setTimeout( () => {
                 setLoading(false);
+
+                // },2000)
             }).catch((err) => {
                 console.log("Oh no a bad happened");
                 // setTimeout(() => {
@@ -98,11 +105,17 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
         console.log("no array, but it failed:", didYouMeanStr);
         return didYouMeanStr;
     };
-    function handlePokemonChange(e: React.ChangeEvent<HTMLSelectElement>){
+
+    function handlePokemonChange(e: React.ChangeEvent<HTMLSelectElement>) {
         // router.push(e.target.value);
         setDropdownPokemon(e.target.value);
         console.log("e");
     }
+
+    const handleFormSubmit = (e: React.FormEvent) => {//todo: create a component for this form!
+        e.preventDefault();
+        router.push(pokemonInputValue);
+    };
 
 
     if (isLoading) {
@@ -123,13 +136,10 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                           href={`/pokemon/${didYouMeanStr}`}>Did you
                         mean &quot;{toCapitalize(didYouMeanStr)}&quot;?</Link>
                 }
-                <form className={"grid gap-4"} action="" onSubmit={(e: React.FormEvent) => {//todo: create a component for this form!
-                    e.preventDefault();
-                    router.push(pokemonInputValue);
-                }}>
-                    <select className={""}  value={dropdownPokemon} name={"pokeSelect"} onChange={handlePokemonChange}>
-                        {pokemonHistory.map( (poke) => {
-                            return <option value={poke} key={poke}>{poke}</option>
+                <form className={"grid gap-4"} action="" onSubmit={handleFormSubmit}>
+                    <select className={""} value={dropdownPokemon} name={"pokeSelect"} onChange={handlePokemonChange}>
+                        {pokemonHistory.map((poke) => {
+                            return <option value={poke} key={poke}>{poke}</option>;
                         })}
                     </select>
                     <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800"
@@ -208,10 +218,7 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                                 </div>
                             </section>
                         </article>
-                        <form action="" onSubmit={(e: React.FormEvent) => {
-                            e.preventDefault();
-                            router.push(pokemonInputValue);
-                        }}>
+                        <form action="" onSubmit={handleFormSubmit}>
                             <input autoFocus={true} className="text-black rounded-[4px] p-[4px]"
                                    placeholder={"enter a pokemon to find!"} onChange={(e) => {
                                 setPokemonInputValue(e.target.value);
