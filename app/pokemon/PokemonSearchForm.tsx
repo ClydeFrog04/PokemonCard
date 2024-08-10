@@ -11,10 +11,10 @@ type ParamsT = {
     // currentSelectValue: string;
     showDidYouMean?: boolean;
     didYouMeanStr: string;
-    currentPokemonParam: string
+    currentPokemonParam: string;
 }
 
-export default function PokemonSearchForm({pokemonHistory,didYouMeanStr, currentPokemonParam}: ParamsT) {
+export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, currentPokemonParam}: ParamsT) {
     const [pokemonInputValue, setPokemonInputValue] = useState("");
     const [currentSelectValue, setCurrentSelectValue] = useState(pokemonHistory[0]);
     const router = useRouter();
@@ -41,9 +41,9 @@ export default function PokemonSearchForm({pokemonHistory,didYouMeanStr, current
     return (
         <form className={"grid gap-4"} action="" onSubmit={handleFormSubmit}>
             {(didYouMeanStr !== "none" && didYouMeanStr !== "") &&
-            <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800"
-                  href={`/pokemon/${didYouMeanStr}`}>Did you
-                mean &quot;{toCapitalize(didYouMeanStr)}&quot;?</Link>
+                <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800"
+                      href={`/pokemon/${didYouMeanStr}`}>Did you
+                    mean &quot;{toCapitalize(didYouMeanStr)}&quot;?</Link>
             }
             <select className={""} value={currentSelectValue} name={"pokeSelect"} onChange={handlePokemonChange}>
                 {pokemonHistory.map((poke) => {
