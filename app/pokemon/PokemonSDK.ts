@@ -11,9 +11,9 @@ export class PokemonSDK {
 
     constructor() {
         // this.pokemonName = pokemonName;
-        const num = Math.floor(Math.random() * 10);
+        const num = Math.floor(Math.random() * 4096);
         console.log("getdisplaysprite called", num);
-        this.isShiny = num % 2 === 0;
+        this.isShiny = num === 1;
     }
 
     public getIsShiny() {

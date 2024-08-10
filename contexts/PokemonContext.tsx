@@ -7,8 +7,10 @@
 
 import React, {createContext, Dispatch, JSX, PropsWithChildren, SetStateAction, useState} from "react";
 
+const pokemonHistorySessionStorage = sessionStorage.getItem("pokemonHistory");
+
 const defaultState = {
-    pokemonHistory: [],
+    pokemonHistory: pokemonHistorySessionStorage === null ? [] : JSON.parse(pokemonHistorySessionStorage),
 }
 
 interface IPokemonState {

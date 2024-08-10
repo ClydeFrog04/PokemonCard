@@ -11,16 +11,18 @@ type ParamsT = {
     // currentSelectValue: string;
     showDidYouMean?: boolean;
     didYouMeanStr: string;
+    currentPokemonParam: string
 }
 
-export default function PokemonSearchForm({pokemonHistory,didYouMeanStr}: ParamsT) {
+export default function PokemonSearchForm({pokemonHistory,didYouMeanStr, currentPokemonParam}: ParamsT) {
     const [pokemonInputValue, setPokemonInputValue] = useState("");
     const [currentSelectValue, setCurrentSelectValue] = useState(pokemonHistory[0]);
     const router = useRouter();
 
 
     useEffect(() => {
-        console.log({didYouMeanStr});
+        console.log("pokemon given was:", currentPokemonParam);
+        setCurrentSelectValue(currentPokemonParam);
     }, []);
 
 

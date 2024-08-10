@@ -29,6 +29,7 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                 // pokemonHistory.push(params.pokemon);
                 if(!pokemonHistory.includes(params.pokemon)){
                     const newHistory = [...pokemonHistory, params.pokemon];
+                    sessionStorage.setItem("pokemonHistory", JSON.stringify(newHistory));
                     console.log("new history:", JSON.stringify(newHistory));
                     setPokemonHistory(newHistory);
                 }
@@ -107,7 +108,7 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                 {/*}*/}
 
                 <PokemonSearchForm pokemonHistory={pokemonHistory} showDidYouMean={didYouMeanStr !== "none"}
-                                   didYouMeanStr={didYouMeanStr}/>
+                                   didYouMeanStr={didYouMeanStr} currentPokemonParam={params.pokemon}/>
             </main>
         );
     }
@@ -181,7 +182,7 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                         {/*        setPokemonInputValue(e.target.value);*/}
                         {/*    }}/>*/}
                         {/*</form>*/}
-                        <PokemonSearchForm pokemonHistory={pokemonHistory} didYouMeanStr={didYouMeanStr}/>
+                        <PokemonSearchForm pokemonHistory={pokemonHistory} didYouMeanStr={didYouMeanStr} currentPokemonParam={params.pokemon}/>
                     </div>
                 </>
             }
