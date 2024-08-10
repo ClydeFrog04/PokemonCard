@@ -2,28 +2,18 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
 import Image from "next/image";
 import {PokemonSDK} from "@/app/pokemon/PokemonSDK";
-import {useRouter} from "next/navigation";
 import didYouMean from "didyoumean";
 import names from "@/app/pokemon/names.json";
-import Link from "next/link";
 import PokemonSearchForm from "@/app/pokemon/PokemonSearchForm";
-import {toCapitalize} from "@/utils/StringUtils";
 import {PokemonStateContext} from "@/contexts/PokemonContext";
 
 
 export default function Pokemon({params}: { params: { pokemon: string } }) {
     const [isLoading, setLoading] = useState(true);
-    // const pokeSdk = useRef<PokemonSDK>(new PokemonSDK());
     const pokeSdk = useMemo(() => new PokemonSDK(), []);
     const [isError, setIsError] = useState(false);
     const [didYouMeanStr, setDidYouMeanStr] = useState("");
-    // const [pokemonHistory, setPokemonHistory] = useState<string[]>(["eevee"]);
-    // const [pokemonHistory, setPokemonHistory] = useState<Set<string>>(new Set("eevee"));
-    // const [dropdownPokemon, setDropdownPokemon] = useState(pokemonHistory[0]);
-    // const [dropdownPokemon, setDropdownPokemon] = useState(pokemonHistory.values().ge);
     const {pokemonHistory, setPokemonHistory} = useContext(PokemonStateContext);
-
-
     const displaySprite = useRef<string>("");
 
 
@@ -37,9 +27,11 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                 console.log("fetching?");
                 displaySprite.current = pokeSdk.getDisplaySprite();
                 // pokemonHistory.push(params.pokemon);
-                const newHistory = [...pokemonHistory, params.pokemon];
-                console.log("new history:", JSON.stringify(newHistory));
-                setPokemonHistory(newHistory);
+                if(!pokemonHistory.includes(params.pokemon)){
+                    const newHistory = [...pokemonHistory, params.pokemon];
+                    console.log("new history:", JSON.stringify(newHistory));
+                    setPokemonHistory(newHistory);
+                }
                 // setTimeout( () => {
                 setLoading(false);
 

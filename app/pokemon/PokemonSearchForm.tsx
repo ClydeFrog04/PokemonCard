@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import {toCapitalize} from "@/utils/StringUtils";
 
@@ -19,9 +19,15 @@ export default function PokemonSearchForm({pokemonHistory,didYouMeanStr}: Params
     const router = useRouter();
 
 
+    useEffect(() => {
+        console.log({didYouMeanStr});
+    }, []);
+
+
     function handlePokemonChange(e: React.ChangeEvent<HTMLSelectElement>) {
         // router.push(e.target.value);
         setCurrentSelectValue(e.target.value);
+        router.push(e.target.value);
         console.log("e");
     }
 
@@ -32,10 +38,10 @@ export default function PokemonSearchForm({pokemonHistory,didYouMeanStr}: Params
 
     return (
         <form className={"grid gap-4"} action="" onSubmit={handleFormSubmit}>
-            {didYouMeanStr !== "none" && //todo: need to make sure this doesn't also render when the string is empty!
+            {(didYouMeanStr !== "none" && didYouMeanStr !== "") &&
             <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800"
-                  href={`/pokemon/${currentSelectValue}`}>Did you
-                mean &quot;{toCapitalize(currentSelectValue)}&quot;?</Link>
+                  href={`/pokemon/${didYouMeanStr}`}>Did you
+                mean &quot;{toCapitalize(didYouMeanStr)}&quot;?</Link>
             }
             <select className={""} value={currentSelectValue} name={"pokeSelect"} onChange={handlePokemonChange}>
                 {pokemonHistory.map((poke) => {

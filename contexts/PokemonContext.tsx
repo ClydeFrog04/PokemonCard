@@ -8,7 +8,7 @@
 import React, {createContext, Dispatch, JSX, PropsWithChildren, SetStateAction, useState} from "react";
 
 const defaultState = {
-    pokemonHistory: ["eevee"],
+    pokemonHistory: [],
 }
 
 interface IPokemonState {
