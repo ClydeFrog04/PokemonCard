@@ -1,3 +1,4 @@
+"use client"
 /**
  * date 11-09-2022
  * author Randi Egan

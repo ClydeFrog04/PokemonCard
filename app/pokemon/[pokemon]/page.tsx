@@ -30,6 +30,7 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                 if(!pokemonHistory.includes(params.pokemon)){
                     const newHistory = [...pokemonHistory, params.pokemon];
                     sessionStorage.setItem("pokemonHistory", JSON.stringify(newHistory));
+                    localStorage.setItem("pokemonHistory", JSON.stringify(newHistory));
                     console.log("new history:", JSON.stringify(newHistory));
                     setPokemonHistory(newHistory);
                 }
@@ -47,6 +48,15 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
             });
         }
     }, []);
+
+    useEffect(() => {
+        // console.log(localStorage.getItem("pokemonHistory"));
+        if(pokeSdk !== null){
+            console.log("poketype name",pokeSdk.getPokemonTypeName());
+            console.log("poke name",pokeSdk.getPokemonName());
+            console.log(`shadow-${pokeSdk.getPokemonTypeName()}`);
+        }
+    }, [pokeSdk]);
 
     /**
      *
@@ -119,7 +129,7 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                 <>
                     <div className="cardContainer flex flex-col items-center gap-4">
                         <article id={pokeSdk.getPokemonName() + "Card"} className={`relative flex justify-items-center justify-center flex-col
-                         content-center items-center max-w-sm p-6 bg-white rounded-lg shadow-gray-300 shadow-2xl
+                         content-center items-center max-w-sm p-6 bg-white rounded-lg shadow-${pokeSdk.getPokemonTypeName()} shadow-2xl mb-10
                          before:content-['']
                          before:bg-${pokeSdk.getPokemonTypeName()}
                          before:absolute

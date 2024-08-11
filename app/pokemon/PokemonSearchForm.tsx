@@ -45,15 +45,27 @@ export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, curren
                       href={`/pokemon/${didYouMeanStr}`}>Did you
                     mean &quot;{toCapitalize(didYouMeanStr)}&quot;?</Link>
             }
-            <select className={""} value={currentSelectValue} name={"pokeSelect"} onChange={handlePokemonChange}>
-                {pokemonHistory.map((poke) => {
-                    return <option value={poke} key={poke}>{poke}</option>;
-                })}
-            </select>
+            <div className="container flex gap-2 justify-between">
+
+                <select className={"w-3/4"} value={currentSelectValue} name={"pokeSelect"} onChange={handlePokemonChange}>
+                    {/*[...pokemonHistory].sort()//if we want this :] sort without changing history*/}
+                    {pokemonHistory.map((poke) => {
+                        return <option value={poke} key={poke}>{poke}</option>;
+                    })}
+                </select>
+                <p className="flex-1 flex justify-center content-center">{pokemonHistory.length}</p>
+
+            </div>
+
             <input autoFocus={true} className="text-black rounded-[4px] p-[4px]"
                    placeholder={"enter a pokemon to find!"} onChange={(e) => {
                 setPokemonInputValue(e.target.value);
             }}/>
+            {/*<button onClick={() => {*/}
+            {/*    sessionStorage.removeItem("pokemonHistory");*/}
+            {/*    router.refresh();*/}
+            {/*}}>Clear History*/}
+            {/*</button>*/}
         </form>
     );
 }

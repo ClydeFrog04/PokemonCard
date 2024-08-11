@@ -1,4 +1,5 @@
 import {PokemonT, TypeColors} from "@/app/pokemon/PokemonAPITypes";
+import {revalidatePath} from "next/cache";
 
 // import {writeFile} from "fs";
 
@@ -45,7 +46,9 @@ export class PokemonSDK {
 
     public async fetchPokemon(pokemonName: string) {
         const baseUrl = `https://pokeapi.co/api/v2/pokemon/${pokemonName}`;
-        return await fetch(baseUrl)
+        return await fetch(baseUrl, {
+            cache: "force-cache",
+        })
             .then((res) => {
                 return res.json();
             })
