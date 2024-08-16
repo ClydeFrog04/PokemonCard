@@ -1,32 +1,24 @@
 "use client";
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
 import Image from "next/image";
 import {PokemonSDK} from "@/app/pokemon/PokemonSDK";
-import {useRouter} from "next/navigation";
 import didYouMean from "didyoumean";
 import names from "@/app/pokemon/names.json";
-import Link from "next/link";
+import PokemonSearchForm from "@/app/pokemon/PokemonSearchForm";
+import {PokemonStateContext} from "@/contexts/PokemonContext";
 
 
 export default function Pokemon({params}: { params: { pokemon: string } }) {
     const [isLoading, setLoading] = useState(true);
-    // const pokeSdk = useRef<PokemonSDK>(new PokemonSDK());
     const pokeSdk = useMemo(() => new PokemonSDK(), []);
-    const [pokemonInputValue, setPokemonInputValue] = useState("");
-    const router = useRouter();
     const [isError, setIsError] = useState(false);
     const [didYouMeanStr, setDidYouMeanStr] = useState("");
-    const [pokemonHistory, setPokemonHistory] = useState<string[]>(["eevee"]);
-    // const [pokemonHistory, setPokemonHistory] = useState<Set<string>>(new Set("eevee"));
-    const [dropdownPokemon, setDropdownPokemon] = useState(pokemonHistory[0]);
-    // const [dropdownPokemon, setDropdownPokemon] = useState(pokemonHistory.values().ge);
-
-
+    const {pokemonHistory, setPokemonHistory} = useContext(PokemonStateContext);
     const displaySprite = useRef<string>("");
 
 
     useEffect(() => {
-        console.log("selected poke at mount:", dropdownPokemon);
+        console.log("pokemon history:", pokemonHistory);
         if (pokeSdk !== null) {
             setLoading(true);
             setIsError(false);
@@ -35,9 +27,12 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                 console.log("fetching?");
                 displaySprite.current = pokeSdk.getDisplaySprite();
                 // pokemonHistory.push(params.pokemon);
-                const newHistory = [...pokemonHistory, params.pokemon];
-                console.log("new history:", JSON.stringify(newHistory));
-                setPokemonHistory(newHistory);
+                if(!pokemonHistory.includes(params.pokemon)){
+                    const newHistory = [...pokemonHistory, params.pokemon];
+                    sessionStorage.setItem("pokemonHistory", JSON.stringify(newHistory));
+                    console.log("new history:", JSON.stringify(newHistory));
+                    setPokemonHistory(newHistory);
+                }
                 // setTimeout( () => {
                 setLoading(false);
 
@@ -77,20 +72,6 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
         return (yiq >= 128) ? "black" : "white";
     };
 
-    /**
-     * returns a Capitalized version of the given string
-     * @param str
-     */
-    const toCapitalize = (str: string) => {
-        const split = str.split(" ");
-        const caps = split.map((word) => {
-            const firstLetter = word.charAt(0).toUpperCase();
-            const rest = word.substring(1);
-            return firstLetter + rest;
-        });
-        return caps.join("");
-    };
-
     const getDidYouMeanString = (attempt: string): string => {
         //todo: this returns null when there is no match, rather than the array or string it claims, need a better default system:[
         const didYouMeanStr = didYouMean(attempt, names);
@@ -104,17 +85,6 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
         }
         console.log("no array, but it failed:", didYouMeanStr);
         return didYouMeanStr;
-    };
-
-    function handlePokemonChange(e: React.ChangeEvent<HTMLSelectElement>) {
-        // router.push(e.target.value);
-        setDropdownPokemon(e.target.value);
-        console.log("e");
-    }
-
-    const handleFormSubmit = (e: React.FormEvent) => {//todo: create a component for this form!
-        e.preventDefault();
-        router.push(pokemonInputValue);
     };
 
 
@@ -131,26 +101,14 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                     We couldn&apos;t find a pokemon with the name &quot;{decodeURI(params.pokemon)}&quot; :[
                     Please try a different pokemon!
                 </p>
-                {didYouMeanStr !== "none" &&
-                    <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800"
-                          href={`/pokemon/${didYouMeanStr}`}>Did you
-                        mean &quot;{toCapitalize(didYouMeanStr)}&quot;?</Link>
-                }
-                <form className={"grid gap-4"} action="" onSubmit={handleFormSubmit}>
-                    <select className={""} value={dropdownPokemon} name={"pokeSelect"} onChange={handlePokemonChange}>
-                        {pokemonHistory.map((poke) => {
-                            return <option value={poke} key={poke}>{poke}</option>;
-                        })}
-                    </select>
-                    <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800"
-                          href={`/pokemon/${dropdownPokemon}`}>Did you
-                        mean &quot;{toCapitalize(dropdownPokemon)}&quot;?</Link>
-                    <input autoFocus={true} className="text-black rounded-[4px] p-[4px]"
-                           placeholder={"enter a pokemon to find!"} onChange={(e) => {
-                        setPokemonInputValue(e.target.value);
-                    }}/>
-                </form>
+                {/*{didYouMeanStr !== "none" &&*/}
+                {/*    <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800"*/}
+                {/*          href={`/pokemon/${didYouMeanStr}`}>Did you*/}
+                {/*        mean &quot;{toCapitalize(didYouMeanStr)}&quot;?</Link>*/}
+                {/*}*/}
 
+                <PokemonSearchForm pokemonHistory={pokemonHistory} showDidYouMean={didYouMeanStr !== "none"}
+                                   didYouMeanStr={didYouMeanStr} currentPokemonParam={params.pokemon}/>
             </main>
         );
     }
@@ -218,12 +176,13 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                                 </div>
                             </section>
                         </article>
-                        <form action="" onSubmit={handleFormSubmit}>
-                            <input autoFocus={true} className="text-black rounded-[4px] p-[4px]"
-                                   placeholder={"enter a pokemon to find!"} onChange={(e) => {
-                                setPokemonInputValue(e.target.value);
-                            }}/>
-                        </form>
+                        {/*<form action="" onSubmit={handleFormSubmit}>*/}
+                        {/*    <input autoFocus={true} className="text-black rounded-[4px] p-[4px]"*/}
+                        {/*           placeholder={"enter a pokemon to find!"} onChange={(e) => {*/}
+                        {/*        setPokemonInputValue(e.target.value);*/}
+                        {/*    }}/>*/}
+                        {/*</form>*/}
+                        <PokemonSearchForm pokemonHistory={pokemonHistory} didYouMeanStr={didYouMeanStr} currentPokemonParam={params.pokemon}/>
                     </div>
                 </>
             }
