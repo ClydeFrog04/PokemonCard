@@ -1,1 +1,1 @@
-## This should enforce when app folder changes
+## This should enforce when root folder changes
