@@ -46,9 +46,7 @@ export class PokemonSDK {
 
     public async fetchPokemon(pokemonName: string) {
         const baseUrl = `https://pokeapi.co/api/v2/pokemon/${pokemonName}`;
-        return await fetch(baseUrl, {
-            cache: "force-cache",
-        })
+        return await fetch(baseUrl)
             .then((res) => {
                 return res.json();
             })

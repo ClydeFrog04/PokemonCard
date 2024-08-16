@@ -24,7 +24,7 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
             setIsError(false);
             pokeSdk.fetchPokemon(params.pokemon.toLowerCase()).then((data) => {
                 // console.log("Fetch done!", data);
-                console.log("fetching?");
+                console.log("fetching*********************************************************?");
                 displaySprite.current = pokeSdk.getDisplaySprite();
                 // pokemonHistory.push(params.pokemon);
                 if(!pokemonHistory.includes(params.pokemon)){
@@ -127,6 +127,19 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
         <main className="flex min-h-screen flex-col items-center p-24 justify-around">
             {!isLoading &&
                 <>
+                    <button className="bg-green-400 text-black p-2 border-white border-4" onClick={ (event) => {
+                        // new Worker(new URL("worker.js", import.meta.url))
+                        // console.log(import.meta.url);
+                        // const myWorker = new Worker( "/workerScripts/TestWebWorker.js")//"../../../workerScripts/TestWebWorker.js");
+
+                        // const myWorker = new Worker(new URL("../../../workerScripts/TestWebWorker.js",import.meta.url));
+                        // myWorker.postMessage([4, 8]);
+                        // console.log("Message posted to worker");
+                        setTimeout( () => {
+                            console.log("posting message back to main script");
+                        }, 10_000);
+
+                    }}>send message</button>
                     <div className="cardContainer flex flex-col items-center gap-4">
                         <article id={pokeSdk.getPokemonName() + "Card"} className={`relative flex justify-items-center justify-center flex-col
                          content-center items-center max-w-sm p-6 bg-white rounded-lg shadow-${pokeSdk.getPokemonTypeName()} shadow-2xl mb-10
