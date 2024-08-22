@@ -18,6 +18,7 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
 
 
     useEffect(() => {
+        //adding a comment to test pr template
         console.log("pokemon history:", pokemonHistory);
         if (pokeSdk !== null) {
             setLoading(true);
