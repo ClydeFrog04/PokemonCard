@@ -11,6 +11,7 @@
  */
 import React, {JSX, PropsWithChildren} from "react";
 import {PokemonStateProvider} from "@/contexts/PokemonContext";
+import {AnotherContextStateProvider} from "@/contexts/AnotherContext";
 // import {StateContextProvider} from "./StateContext";
 
 
@@ -29,6 +30,6 @@ const combineContexts = (...contexts: React.FC<JSX.Element>[]) => {
     );
 };
 
-const providers: React.FC<JSX.Element>[] = [PokemonStateProvider];
+const providers:  React.FC<PropsWithChildren<React.ReactNode>>[] = [PokemonStateProvider, AnotherContextStateProvider];
 
 export const RootProvider = combineContexts(...providers);

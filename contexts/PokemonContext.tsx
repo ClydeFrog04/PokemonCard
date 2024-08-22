@@ -21,7 +21,7 @@ interface IPokemonState {
 export const PokemonStateContext = createContext<IPokemonState>({} as IPokemonState);
 
 
-export const PokemonStateProvider: React.FC<JSX.Element> =  ({children}: PropsWithChildren<React.ReactNode>) => {
+export const PokemonStateProvider: React.FC<PropsWithChildren<React.ReactNode>> =  ({children}: PropsWithChildren<React.ReactNode>) => {
     const [pokemonHistory, setPokemonHistory] = useState<string[]>(defaultState.pokemonHistory);
 
 
