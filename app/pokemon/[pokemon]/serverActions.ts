@@ -14,25 +14,39 @@ export const getUsersPokemonHistory = async () => {
 export async function createUser() {
     return prisma.user.create({
         data: {
-            name: "Randi",
+            name: "Kristion",
             PokemonHistory: {
                 create: [
-                    {
-                        name: "Eevee",
-                        type: "normal",
-                        number: 133
-                    }
+                    // {
+                    //     name: "Eevee",
+                    //     type: "normal",
+                    //     number: 133
+                    // }
                 ]
             }
         }
     });
 }
 
-export async function getUserPokemonHistory(id: number){
+export async function getUserPokemonHistory(id: number) {
     return prisma.pokemon.findMany({
-        where:{
+        where: {
             userId: id
         }
+    });
+}
+
+export async function addPokemonToUserHistory(userId: number, pokemon: { name: string, type: string, number: number }) {
+    const pokeId = await prisma.pokemon.findFirst({where:{name: pokemon.name, userId: userId}});
+    return prisma.pokemon.upsert({
+        create: {
+            userId: userId,
+            name: pokemon.name,
+            type: pokemon.type,
+            number: pokemon.number,
+        },
+        update: {},
+        where:{id: pokeId === null ? 0 : pokeId.id , userId: userId}
     });
 }
 

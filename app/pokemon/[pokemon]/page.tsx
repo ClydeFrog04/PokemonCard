@@ -6,7 +6,11 @@ import didYouMean from "didyoumean";
 import names from "@/app/pokemon/names.json";
 import PokemonSearchForm from "@/app/pokemon/PokemonSearchForm";
 import {PokemonStateContext} from "@/contexts/PokemonContext";
-import {getUserPokemonHistory, getUsersPokemonHistory} from "@/app/pokemon/[pokemon]/serverActions";
+import {
+    addPokemonToUserHistory,
+    getUserPokemonHistory,
+    getUsersPokemonHistory
+} from "@/app/pokemon/[pokemon]/serverActions";
 
 
 export default function Pokemon({params}: { params: { pokemon: string } }) {
@@ -16,19 +20,20 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
     const [didYouMeanStr, setDidYouMeanStr] = useState("");
     const {pokemonHistory, setPokemonHistory} = useContext(PokemonStateContext);
     const displaySprite = useRef<string>("");
+    const USER_ID = 1;
 
     useEffect(() => {
-        getUserPokemonHistory(1).then((res) => {
-            console.log(res);
-        });
         console.log("pokemon history:", pokemonHistory);
         if (pokeSdk !== null) {
             setLoading(true);
             setIsError(false);
             pokeSdk.fetchPokemon(params.pokemon.toLowerCase()).then((data) => {
                 // console.log("Fetch done!", data);
-                console.log("fetching?");
+                console.log("fetching?", data, pokeSdk.getPokemonName());
                 displaySprite.current = pokeSdk.getDisplaySprite();
+                addPokemonToUserHistory(USER_ID, {name: pokeSdk.getPokemonName() || "", type: pokeSdk.getPokemonTypeName(), number: pokeSdk.getPokemonNumber()}).then((res) => {
+                    console.log("we got:", res);
+                });
                 // pokemonHistory.push(params.pokemon);
                 if(!pokemonHistory.includes(params.pokemon)){
                     const newHistory = [...pokemonHistory, params.pokemon];

@@ -5,16 +5,19 @@
  */
 
 
-import React, {createContext, Dispatch, JSX, PropsWithChildren, SetStateAction, useState} from "react";
+import React, {createContext, Dispatch, JSX, PropsWithChildren, SetStateAction, useEffect, useState} from "react";
+import {getUserPokemonHistory} from "@/app/pokemon/[pokemon]/serverActions";
 
-let pokemonHistorySessionStorage = null;
-console.log("window was", typeof window);
-if(typeof window !== undefined){
-    pokemonHistorySessionStorage = sessionStorage.getItem("pokemonHistory");
-}
+// let pokemonHistorySessionStorage = null;
+// console.log("window was", typeof window);
+// if(typeof window !== undefined){
+//     pokemonHistorySessionStorage = sessionStorage.getItem("pokemonHistory");
+// }
+const USER_ID = 1;
+// const pokemonHistorySessionStorage =
 
 const defaultState = {
-    pokemonHistory: pokemonHistorySessionStorage === null ? [] : JSON.parse(pokemonHistorySessionStorage),
+    pokemonHistory: []//pokemonHistorySessionStorage === null ? [] : JSON.parse(pokemonHistorySessionStorage),
 }
 
 interface IPokemonState {
@@ -25,8 +28,14 @@ interface IPokemonState {
 export const PokemonStateContext = createContext<IPokemonState>({} as IPokemonState);
 
 
-export const PokemonStateProvider: React.FC<PropsWithChildren<React.ReactNode>> =  ({children}: PropsWithChildren<React.ReactNode>) => {
+export const PokemonStateProvider: React.FC<PropsWithChildren<React.ReactNode>> = ({children}: PropsWithChildren<React.ReactNode>) => {
     const [pokemonHistory, setPokemonHistory] = useState<string[]>(defaultState.pokemonHistory);
+
+    useEffect(() => {
+        getUserPokemonHistory(USER_ID).then((res) => {
+            console.log("history was:", res);
+        });
+    }, []);
 
 
     return (

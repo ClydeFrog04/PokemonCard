@@ -43,6 +43,13 @@ export class PokemonSDK {
         return this.pokemon?.name;
     }
 
+    public getPokemonNumber(){
+        if(!this.pokemon){
+            return -1;
+        }
+        return this.pokemon?.id;
+    }
+
     public async fetchPokemon(pokemonName: string) {
         const baseUrl = `https://pokeapi.co/api/v2/pokemon/${pokemonName}`;
         return await fetch(baseUrl)
@@ -52,6 +59,7 @@ export class PokemonSDK {
             .then((data) => {
                 this.pokemon = data;
                 this.getAndSetAllOfficialSprites(data);
+                return data;
             });
     }
 

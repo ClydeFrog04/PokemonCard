@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "devMingration": "npx prisma migrate dev --name init",
+    "prismaStudio": "npx prisma studio",
     "test": "vitest"
   },
   "dependencies": {
