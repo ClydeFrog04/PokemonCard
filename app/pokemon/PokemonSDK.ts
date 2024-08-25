@@ -12,7 +12,6 @@ export class PokemonSDK {
     constructor() {
         // this.pokemonName = pokemonName;
         const num = Math.floor(Math.random() * 4096);
-        console.log("getdisplaysprite called", num);
         this.isShiny = num === 1;
     }
 
@@ -39,7 +38,6 @@ export class PokemonSDK {
     }
 
     public getPokemonName() {
-        // console.log("get name called:", this.pokemon?.name);
         return this.pokemon?.name;
     }
 

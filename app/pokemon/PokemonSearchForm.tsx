@@ -3,10 +3,11 @@ import Link from "next/link";
 import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import {toCapitalize} from "@/utils/StringUtils";
+import {PokemonDBEntry} from "@/app/pokemon/PokemonDBTypes";
 
 
 type ParamsT = {
-    pokemonHistory: string[];
+    pokemonHistory: PokemonDBEntry[];
     // handleFormSubmit: React.FormEventHandler<HTMLFormElement> | undefined;
     // currentSelectValue: string;
     showDidYouMean?: boolean;
@@ -16,12 +17,11 @@ type ParamsT = {
 
 export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, currentPokemonParam}: ParamsT) {
     const [pokemonInputValue, setPokemonInputValue] = useState("");
-    const [currentSelectValue, setCurrentSelectValue] = useState(pokemonHistory[0]);
+    const [currentSelectValue, setCurrentSelectValue] = useState<string>(pokemonHistory[0].name);
     const router = useRouter();
 
 
     useEffect(() => {
-        console.log("pokemon given was:", currentPokemonParam);
         setCurrentSelectValue(currentPokemonParam);
     }, []);
 
@@ -30,7 +30,6 @@ export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, curren
         // router.push(e.target.value);
         setCurrentSelectValue(e.target.value);
         router.push(e.target.value);
-        console.log("e");
     }
 
     const handleFormSubmit = (e: React.FormEvent) => {//todo: create a component for this form!
@@ -47,7 +46,7 @@ export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, curren
             }
             <select className={""} value={currentSelectValue} name={"pokeSelect"} onChange={handlePokemonChange}>
                 {pokemonHistory.map((poke) => {
-                    return <option value={poke} key={poke}>{poke}</option>;
+                    return <option value={poke.name} key={poke.number}>{poke.name}</option>;
                 })}
             </select>
             <input autoFocus={true} className="text-black rounded-[4px] p-[4px]"

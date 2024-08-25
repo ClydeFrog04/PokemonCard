@@ -2,15 +2,14 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
 import Image from "next/image";
 import {PokemonSDK} from "@/app/pokemon/PokemonSDK";
-import didYouMean from "didyoumean";
-import names from "@/app/pokemon/names.json";
 import PokemonSearchForm from "@/app/pokemon/PokemonSearchForm";
 import {PokemonStateContext} from "@/contexts/PokemonContext";
 import {
-    addPokemonToUserHistory,
+    addPokemonToUserHistoryIfNotExists,
     getUserPokemonHistory,
-    getUsersPokemonHistory
 } from "@/app/pokemon/[pokemon]/serverActions";
+import {getDidYouMeanString} from "@/utils/StringUtils";
+import {getContrastYIQ} from "@/utils/ColourUtils";
 
 
 export default function Pokemon({params}: { params: { pokemon: string } }) {
@@ -23,78 +22,23 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
     const USER_ID = 1;
 
     useEffect(() => {
-        console.log("pokemon history:", pokemonHistory);
         if (pokeSdk !== null) {
             setLoading(true);
             setIsError(false);
-            pokeSdk.fetchPokemon(params.pokemon.toLowerCase()).then((data) => {
-                // console.log("Fetch done!", data);
-                console.log("fetching?", data, pokeSdk.getPokemonName());
+            pokeSdk.fetchPokemon(params.pokemon.toLowerCase()).then(async (data) => {
                 displaySprite.current = pokeSdk.getDisplaySprite();
-                addPokemonToUserHistory(USER_ID, {name: pokeSdk.getPokemonName() || "", type: pokeSdk.getPokemonTypeName(), number: pokeSdk.getPokemonNumber()}).then((res) => {
-                    console.log("we got:", res);
+                addPokemonToUserHistoryIfNotExists(USER_ID, {name: pokeSdk.getPokemonName() || "", type: pokeSdk.getPokemonTypeName(), number: pokeSdk.getPokemonNumber()}).then((res) => {
                 });
-                // pokemonHistory.push(params.pokemon);
-                if(!pokemonHistory.includes(params.pokemon)){
-                    const newHistory = [...pokemonHistory, params.pokemon];
-                    sessionStorage.setItem("pokemonHistory", JSON.stringify(newHistory));
-                    console.log("new history:", JSON.stringify(newHistory));
-                    setPokemonHistory(newHistory);
-                }
-                // setTimeout( () => {
+                const newHistory = await getUserPokemonHistory(USER_ID);
+                setPokemonHistory(newHistory);
                 setLoading(false);
-
-                // },2000)
             }).catch((err) => {
-                console.log("Oh no a bad happened");
-                // setTimeout(() => {
                 setDidYouMeanStr(getDidYouMeanString(params.pokemon));
                 setLoading(false);
                 setIsError(true);
-                // }, 1000);
             });
         }
     }, []);
-
-    /**
-     *
-     * @param colour a string in the format rgb(r, g, b);
-     *               this colour comes from the PokemonAPITypes using the Pokemon element type to pick the appropriate colour
-     */
-    const getContrastYIQ = (colour: string): string => {
-        const split = colour.match(/rgb\(|\d+|\)/g)?.filter((value) => {
-            //var result = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
-            const num = parseInt(value);
-            return !isNaN(num);
-        });
-        // console.log("split", split);
-        if (split === undefined) {
-            //default to black- maybe not the best!
-            return "black";
-        }
-        const r = parseInt(split[0]);
-        const g = parseInt(split[1]);
-        const b = parseInt(split[2]);
-
-        const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-        return (yiq >= 128) ? "black" : "white";
-    };
-
-    const getDidYouMeanString = (attempt: string): string => {
-        //todo: this returns null when there is no match, rather than the array or string it claims, need a better default system:[
-        const didYouMeanStr = didYouMean(attempt, names);
-        console.log(didYouMeanStr);
-        if (Array.isArray(didYouMeanStr)) {
-            console.log("we have an array:", JSON.stringify(didYouMeanStr));
-            return didYouMeanStr[0];
-        }
-        if (didYouMeanStr === null) {
-            return "none";
-        }
-        console.log("no array, but it failed:", didYouMeanStr);
-        return didYouMeanStr;
-    };
-
 
     if (isLoading) {
         return (
@@ -109,12 +53,6 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                     We couldn&apos;t find a pokemon with the name &quot;{decodeURI(params.pokemon)}&quot; :[
                     Please try a different pokemon!
                 </p>
-                {/*{didYouMeanStr !== "none" &&*/}
-                {/*    <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800"*/}
-                {/*          href={`/pokemon/${didYouMeanStr}`}>Did you*/}
-                {/*        mean &quot;{toCapitalize(didYouMeanStr)}&quot;?</Link>*/}
-                {/*}*/}
-
                 <PokemonSearchForm pokemonHistory={pokemonHistory} showDidYouMean={didYouMeanStr !== "none"}
                                    didYouMeanStr={didYouMeanStr} currentPokemonParam={params.pokemon}/>
             </main>
@@ -151,7 +89,6 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                             <p className={`font-normal text-gray-700 dark:text-gray-400 text-center px-4 py-1 rounded-2xl bg-${pokeSdk.getPokemonTypeName()}`}
                                style={{
                                    color: (getContrastYIQ(pokeSdk.getPokemonTypeColour())),
-                                   // backgroundColor: pokeSdk!.getPokemonTypeColour()
                                }}
                             >
                                 {pokeSdk.getPokemonTypeName()}
@@ -184,12 +121,6 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                                 </div>
                             </section>
                         </article>
-                        {/*<form action="" onSubmit={handleFormSubmit}>*/}
-                        {/*    <input autoFocus={true} className="text-black rounded-[4px] p-[4px]"*/}
-                        {/*           placeholder={"enter a pokemon to find!"} onChange={(e) => {*/}
-                        {/*        setPokemonInputValue(e.target.value);*/}
-                        {/*    }}/>*/}
-                        {/*</form>*/}
                         <PokemonSearchForm pokemonHistory={pokemonHistory} didYouMeanStr={didYouMeanStr} currentPokemonParam={params.pokemon}/>
                     </div>
                 </>

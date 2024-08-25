@@ -2,28 +2,44 @@
 import {PrismaClient} from "@prisma/client";
 
 const prisma = new PrismaClient();
-export const getUsersPokemonHistory = async () => {
-    console.log("find me in the server");
-    await wait(2000);
-    return "EEVEE";
-    // return setTimeout(() => {
-    //     return JSON.parse(JSON.stringify({pokemon: "EEVEE"}));
-    // }, 1000);
+
+export const doesUserHavePokemon = async (name: string, userId: number) => {
+    const poke = await prisma.pokemon.findFirst({
+        where: {
+            userId: userId,
+            name: name
+        }
+    });
+    return poke !== null;
 };
 
-export async function createUser() {
+export async function doesUserExist(name: string) {
+    return prisma.user.findFirst({
+        where: {
+            name: name
+        }
+    });
+}
+
+export async function createUser(name: string) {
+    const userFound = await doesUserExist(name);
+    if (userFound !== null) {
+        return userFound;
+    }
     return prisma.user.create({
         data: {
-            name: "Kristion",
+            name: name,
             PokemonHistory: {
-                create: [
-                    // {
-                    //     name: "Eevee",
-                    //     type: "normal",
-                    //     number: 133
-                    // }
-                ]
+                create: []
             }
+        }
+    });
+}
+
+export async function deleteAllPokemonForUser(userId: number) {
+    return prisma.pokemon.deleteMany({
+        where: {
+            userId: userId
         }
     });
 }
@@ -36,8 +52,12 @@ export async function getUserPokemonHistory(id: number) {
     });
 }
 
-export async function addPokemonToUserHistory(userId: number, pokemon: { name: string, type: string, number: number }) {
-    const pokeId = await prisma.pokemon.findFirst({where:{name: pokemon.name, userId: userId}});
+export async function addPokemonToUserHistoryIfNotExists(userId: number, pokemon: {
+    name: string,
+    type: string,
+    number: number
+}) {
+    const pokeId = await prisma.pokemon.findFirst({where: {name: pokemon.name, userId: userId}});
     return prisma.pokemon.upsert({
         create: {
             userId: userId,
@@ -46,7 +66,7 @@ export async function addPokemonToUserHistory(userId: number, pokemon: { name: s
             number: pokemon.number,
         },
         update: {},
-        where:{id: pokeId === null ? 0 : pokeId.id , userId: userId}
+        where: {id: pokeId === null ? 0 : pokeId.id, userId: userId}
     });
 }
 
