@@ -6,6 +6,7 @@ import didYouMean from "didyoumean";
 import names from "@/app/pokemon/names.json";
 import PokemonSearchForm from "@/app/pokemon/PokemonSearchForm";
 import {PokemonStateContext} from "@/contexts/PokemonContext";
+import {getUserPokemonHistory, getUsersPokemonHistory} from "@/app/pokemon/[pokemon]/serverActions";
 
 
 export default function Pokemon({params}: { params: { pokemon: string } }) {
@@ -16,8 +17,10 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
     const {pokemonHistory, setPokemonHistory} = useContext(PokemonStateContext);
     const displaySprite = useRef<string>("");
 
-
     useEffect(() => {
+        getUserPokemonHistory(1).then((res) => {
+            console.log(res);
+        });
         console.log("pokemon history:", pokemonHistory);
         if (pokeSdk !== null) {
             setLoading(true);
