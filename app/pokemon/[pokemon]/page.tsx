@@ -5,29 +5,52 @@ import {PokemonSDK} from "@/app/pokemon/PokemonSDK";
 import PokemonSearchForm from "@/app/pokemon/PokemonSearchForm";
 import {PokemonStateContext} from "@/contexts/PokemonContext";
 import {
-    addPokemonToUserHistoryIfNotExists,
+    addPokemonToUserHistoryIfNotExists, doesUserHavePokemon, getUsername,
     getUserPokemonHistory,
 } from "@/app/pokemon/[pokemon]/serverActions";
 import {getDidYouMeanString} from "@/utils/StringUtils";
 import {getContrastYIQ} from "@/utils/ColourUtils";
+import {useRouter, useSearchParams} from "next/navigation";
 
 
 export default function Pokemon({params}: { params: { pokemon: string } }) {
+    const router = useRouter();
+    const searchParams = useSearchParams().get("userId");
+    const USER_ID = Number(searchParams || 1);
     const [isLoading, setLoading] = useState(true);
     const pokeSdk = useMemo(() => new PokemonSDK(), []);
     const [isError, setIsError] = useState(false);
     const [didYouMeanStr, setDidYouMeanStr] = useState("");
+    const [username, setUsername] = useState("");
     const {pokemonHistory, setPokemonHistory} = useContext(PokemonStateContext);
     const displaySprite = useRef<string>("");
-    const USER_ID = 1;
+
+    const setUsernameFromDB = async () => {
+        const usernameFromDB = await getUsername(USER_ID);
+        setUsername(usernameFromDB);
+    };
+
+    const checkIfUserHasCurrentPokemon = async () => {
+        const pokemonFound = await doesUserHavePokemon(params.pokemon, USER_ID);
+        if (pokemonFound === null) {
+            const userHistory = await getUserPokemonHistory(USER_ID);
+            router.push(userHistory[0].name);
+        }
+    };
 
     useEffect(() => {
+        setUsernameFromDB().then().catch(console.error);
+        console.log("search params:", searchParams);
         if (pokeSdk !== null) {
             setLoading(true);
             setIsError(false);
             pokeSdk.fetchPokemon(params.pokemon.toLowerCase()).then(async (data) => {
                 displaySprite.current = pokeSdk.getDisplaySprite();
-                addPokemonToUserHistoryIfNotExists(USER_ID, {name: pokeSdk.getPokemonName() || "", type: pokeSdk.getPokemonTypeName(), number: pokeSdk.getPokemonNumber()}).then((res) => {
+                addPokemonToUserHistoryIfNotExists(USER_ID, {
+                    name: pokeSdk.getPokemonName() || "",
+                    type: pokeSdk.getPokemonTypeName(),
+                    number: pokeSdk.getPokemonNumber()
+                }).then((res) => {
                 });
                 const newHistory = await getUserPokemonHistory(USER_ID);
                 setPokemonHistory(newHistory);
@@ -63,6 +86,17 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
         <main className="flex min-h-screen flex-col items-center p-24 justify-around">
             {!isLoading &&
                 <>
+                    <div
+                        className="absolute top-2 left-2"
+                    >
+                        <span>Showing Pokemon for {username}</span><br/>
+                        <span>{username} has caught {pokemonHistory.length} Pokemon</span><br/>
+                        <button onClick={() => {
+                            let attachParams = `?userId=${USER_ID}`;
+                            router.push("/pokemon" + attachParams);
+                        }}>Return home!
+                        </button>
+                    </div>
                     <div className="cardContainer flex flex-col items-center gap-4">
                         <article id={pokeSdk.getPokemonName() + "Card"} className={`relative flex justify-items-center justify-center flex-col
                          content-center items-center max-w-sm p-6 bg-white rounded-lg shadow-gray-300 shadow-2xl
@@ -121,7 +155,8 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                                 </div>
                             </section>
                         </article>
-                        <PokemonSearchForm pokemonHistory={pokemonHistory} didYouMeanStr={didYouMeanStr} currentPokemonParam={params.pokemon}/>
+                        <PokemonSearchForm pokemonHistory={pokemonHistory} didYouMeanStr={didYouMeanStr}
+                                           currentPokemonParam={params.pokemon}/>
                     </div>
                 </>
             }

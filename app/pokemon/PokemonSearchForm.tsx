@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import React, {useEffect, useState} from "react";
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {toCapitalize} from "@/utils/StringUtils";
 import {PokemonDBEntry} from "@/app/pokemon/PokemonDBTypes";
 
@@ -19,6 +19,8 @@ export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, curren
     const [pokemonInputValue, setPokemonInputValue] = useState("");
     const [currentSelectValue, setCurrentSelectValue] = useState<string>(pokemonHistory[0].name);
     const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
 
     useEffect(() => {
@@ -29,12 +31,24 @@ export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, curren
     function handlePokemonChange(e: React.ChangeEvent<HTMLSelectElement>) {
         // router.push(e.target.value);
         setCurrentSelectValue(e.target.value);
-        router.push(e.target.value);
+        const userId = searchParams.get("userId");
+        let attachParams = "";
+        if(userId !== null){
+            attachParams = `?userId=${userId}`;
+        }
+        console.log("path was:", pathname);
+        // router.push(e.target.value + attachParams);
+        router.push("/pokemon/" + e.target.value + attachParams);
     }
 
     const handleFormSubmit = (e: React.FormEvent) => {//todo: create a component for this form!
         e.preventDefault();
-        router.push(pokemonInputValue);
+        const userId = searchParams.get("userId");
+        let attachParams = "";
+        if(userId !== null){
+            attachParams = `?userId=${userId}`;
+        }
+        router.push("/pokemon/" + pokemonInputValue + attachParams);
     };
 
     return (
