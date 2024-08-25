@@ -87,12 +87,14 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
             {!isLoading &&
                 <>
                     <div
-                        className="absolute top-2 left-2"
+                        className="absolute top-2 left-2 flex flex-col gap-1 justify-start items-start"
                     >
-                        <span>Showing Pokemon for {username}</span><br/>
-                        <span>{username} has caught {pokemonHistory.length} Pokemon</span><br/>
-                        <button onClick={() => {
-                            let attachParams = `?userId=${USER_ID}`;
+                        <span>Showing Pokemon for {username}</span>
+                        <span>{username} has caught {pokemonHistory.length} Pokemon</span>
+                        <button
+                            className="border-green-400 border 4 p-2 rounded-[4px] hover:bg-green-800 hover:border-green-800"
+                            onClick={() => {
+                            const attachParams = `?userId=${USER_ID}`;
                             router.push("/pokemon" + attachParams);
                         }}>Return home!
                         </button>

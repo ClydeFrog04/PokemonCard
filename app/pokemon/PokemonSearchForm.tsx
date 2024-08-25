@@ -17,7 +17,7 @@ type ParamsT = {
 
 export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, currentPokemonParam}: ParamsT) {
     const [pokemonInputValue, setPokemonInputValue] = useState("");
-    const [currentSelectValue, setCurrentSelectValue] = useState<string>(pokemonHistory[0].name);
+    const [currentSelectValue, setCurrentSelectValue] = useState<string>(pokemonHistory.length > 0 ? pokemonHistory[0].name : "");
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -33,7 +33,7 @@ export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, curren
         setCurrentSelectValue(e.target.value);
         const userId = searchParams.get("userId");
         let attachParams = "";
-        if(userId !== null){
+        if (userId !== null) {
             attachParams = `?userId=${userId}`;
         }
         console.log("path was:", pathname);
@@ -45,10 +45,18 @@ export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, curren
         e.preventDefault();
         const userId = searchParams.get("userId");
         let attachParams = "";
-        if(userId !== null){
+        if (userId !== null) {
             attachParams = `?userId=${userId}`;
         }
         router.push("/pokemon/" + pokemonInputValue + attachParams);
+    };
+
+    const getSelectItems = () => {
+        // if (pokemonHistory.length > 0) {
+            return pokemonHistory.map((poke) => {
+                return <option value={poke.name} key={poke.number}>{poke.name}</option>;
+            });
+        // }
     };
 
     return (
@@ -59,9 +67,7 @@ export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, curren
                     mean &quot;{toCapitalize(didYouMeanStr)}&quot;?</Link>
             }
             <select className={""} value={currentSelectValue} name={"pokeSelect"} onChange={handlePokemonChange}>
-                {pokemonHistory.map((poke) => {
-                    return <option value={poke.name} key={poke.number}>{poke.name}</option>;
-                })}
+                {getSelectItems()}
             </select>
             <input autoFocus={true} className="text-black rounded-[4px] p-[4px]"
                    placeholder={"enter a pokemon to find!"} onChange={(e) => {
