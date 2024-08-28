@@ -2,91 +2,66 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
 import Image from "next/image";
 import {PokemonSDK} from "@/app/pokemon/PokemonSDK";
-import didYouMean from "didyoumean";
-import names from "@/app/pokemon/names.json";
 import PokemonSearchForm from "@/app/pokemon/PokemonSearchForm";
 import {PokemonStateContext} from "@/contexts/PokemonContext";
+import {
+    addPokemonToUserHistoryIfNotExists, doesUserHavePokemon, getUsername,
+    getUserPokemonHistory,
+} from "@/app/pokemon/[pokemon]/serverActions";
+import {getDidYouMeanString} from "@/utils/StringUtils";
+import {getContrastYIQ} from "@/utils/ColourUtils";
+import {useRouter, useSearchParams} from "next/navigation";
 
 
 export default function Pokemon({params}: { params: { pokemon: string } }) {
+    const router = useRouter();
+    const searchParams = useSearchParams().get("userId");
+    const USER_ID = Number(searchParams || 1);
     const [isLoading, setLoading] = useState(true);
     const pokeSdk = useMemo(() => new PokemonSDK(), []);
     const [isError, setIsError] = useState(false);
     const [didYouMeanStr, setDidYouMeanStr] = useState("");
+    const [username, setUsername] = useState("");
     const {pokemonHistory, setPokemonHistory} = useContext(PokemonStateContext);
     const displaySprite = useRef<string>("");
 
+    const setUsernameFromDB = async () => {
+        const usernameFromDB = await getUsername(USER_ID);
+        setUsername(usernameFromDB);
+    };
+
+    const checkIfUserHasCurrentPokemon = async () => {
+        const pokemonFound = await doesUserHavePokemon(params.pokemon, USER_ID);
+        if (pokemonFound === null) {
+            const userHistory = await getUserPokemonHistory(USER_ID);
+            router.push(userHistory[0].name);
+        }
+    };
 
     useEffect(() => {
-        console.log("pokemon history:", pokemonHistory);
+        setUsernameFromDB().then().catch(console.error);
+        console.log("search params:", searchParams);
         if (pokeSdk !== null) {
             setLoading(true);
             setIsError(false);
-            pokeSdk.fetchPokemon(params.pokemon.toLowerCase()).then((data) => {
-                // console.log("Fetch done!", data);
-                console.log("fetching?");
+            pokeSdk.fetchPokemon(params.pokemon.toLowerCase()).then(async (data) => {
                 displaySprite.current = pokeSdk.getDisplaySprite();
-                // pokemonHistory.push(params.pokemon);
-                if(!pokemonHistory.includes(params.pokemon)){
-                    const newHistory = [...pokemonHistory, params.pokemon];
-                    sessionStorage.setItem("pokemonHistory", JSON.stringify(newHistory));
-                    console.log("new history:", JSON.stringify(newHistory));
-                    setPokemonHistory(newHistory);
-                }
-                // setTimeout( () => {
+                addPokemonToUserHistoryIfNotExists(USER_ID, {
+                    name: pokeSdk.getPokemonName() || "",
+                    type: pokeSdk.getPokemonTypeName(),
+                    number: pokeSdk.getPokemonNumber()
+                }).then((res) => {
+                });
+                const newHistory = await getUserPokemonHistory(USER_ID);
+                setPokemonHistory(newHistory);
                 setLoading(false);
-
-                // },2000)
             }).catch((err) => {
-                console.log("Oh no a bad happened");
-                // setTimeout(() => {
                 setDidYouMeanStr(getDidYouMeanString(params.pokemon));
                 setLoading(false);
                 setIsError(true);
-                // }, 1000);
             });
         }
     }, []);
-
-    /**
-     *
-     * @param colour a string in the format rgb(r, g, b);
-     *               this colour comes from the PokemonAPITypes using the Pokemon element type to pick the appropriate colour
-     */
-    const getContrastYIQ = (colour: string): string => {
-        const split = colour.match(/rgb\(|\d+|\)/g)?.filter((value) => {
-            //var result = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
-            const num = parseInt(value);
-            return !isNaN(num);
-        });
-        // console.log("split", split);
-        if (split === undefined) {
-            //default to black- maybe not the best!
-            return "black";
-        }
-        const r = parseInt(split[0]);
-        const g = parseInt(split[1]);
-        const b = parseInt(split[2]);
-
-        const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-        return (yiq >= 128) ? "black" : "white";
-    };
-
-    const getDidYouMeanString = (attempt: string): string => {
-        //todo: this returns null when there is no match, rather than the array or string it claims, need a better default system:[
-        const didYouMeanStr = didYouMean(attempt, names);
-        console.log(didYouMeanStr);
-        if (Array.isArray(didYouMeanStr)) {
-            console.log("we have an array:", JSON.stringify(didYouMeanStr));
-            return didYouMeanStr[0];
-        }
-        if (didYouMeanStr === null) {
-            return "none";
-        }
-        console.log("no array, but it failed:", didYouMeanStr);
-        return didYouMeanStr;
-    };
-
 
     if (isLoading) {
         return (
@@ -101,12 +76,6 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                     We couldn&apos;t find a pokemon with the name &quot;{decodeURI(params.pokemon)}&quot; :[
                     Please try a different pokemon!
                 </p>
-                {/*{didYouMeanStr !== "none" &&*/}
-                {/*    <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800"*/}
-                {/*          href={`/pokemon/${didYouMeanStr}`}>Did you*/}
-                {/*        mean &quot;{toCapitalize(didYouMeanStr)}&quot;?</Link>*/}
-                {/*}*/}
-
                 <PokemonSearchForm pokemonHistory={pokemonHistory} showDidYouMean={didYouMeanStr !== "none"}
                                    didYouMeanStr={didYouMeanStr} currentPokemonParam={params.pokemon}/>
             </main>
@@ -117,6 +86,19 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
         <main className="flex min-h-screen flex-col items-center p-24 justify-around">
             {!isLoading &&
                 <>
+                    <div
+                        className="absolute top-2 left-2 flex flex-col gap-1 justify-start items-start"
+                    >
+                        <span>Showing Pokemon for {username}</span>
+                        <span>{username} has caught {pokemonHistory.length} Pokemon</span>
+                        <button
+                            className="border-green-400 border 4 p-2 rounded-[4px] hover:bg-green-800 hover:border-green-800"
+                            onClick={() => {
+                            const attachParams = `?userId=${USER_ID}`;
+                            router.push("/pokemon" + attachParams);
+                        }}>Return home!
+                        </button>
+                    </div>
                     <div className="cardContainer flex flex-col items-center gap-4">
                         <article id={pokeSdk.getPokemonName() + "Card"} className={`relative flex justify-items-center justify-center flex-col
                          content-center items-center max-w-sm p-6 bg-white rounded-lg shadow-gray-300 shadow-2xl
@@ -129,6 +111,26 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                          before:rounded-t-lg
                          before:rounded-b-[51%]
                          `}>
+                            <div className="topInfo absolute top-2 flex justify-around w-full">
+                                <span
+                                    className="text-black font-bold z-20 bg-white p-1 pl-3 pr-3 rounded-3xl">
+                                #{pokeSdk.getPokemonNumber()}
+                            </span>
+                                <span
+                                    className="text-black font-bold z-20 bg-white p-1 pl-3 pr-3 rounded-3xl">
+                                gen{pokeSdk.getPokemonGeneration()}
+                            </span>
+                                <div
+                                    className="stat flex z-20 items-center justify-center bg-white p-1 pl-3 pr-3 rounded-3xl right-2">
+                                <span className="text-black font-bold text-sm">
+                                    {pokeSdk.getPokemonHpStatName()}
+                                </span>
+                                    <span className="text-black font-bold">
+                                     {pokeSdk.getPokemonHpStat()}
+                                 </span>
+                                </div>
+                            </div>
+
                             <Image
                                 className="z-10"
                                 src={displaySprite.current}
@@ -143,7 +145,6 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                             <p className={`font-normal text-gray-700 dark:text-gray-400 text-center px-4 py-1 rounded-2xl bg-${pokeSdk.getPokemonTypeName()}`}
                                style={{
                                    color: (getContrastYIQ(pokeSdk.getPokemonTypeColour())),
-                                   // backgroundColor: pokeSdk!.getPokemonTypeColour()
                                }}
                             >
                                 {pokeSdk.getPokemonTypeName()}
@@ -176,13 +177,8 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                                 </div>
                             </section>
                         </article>
-                        {/*<form action="" onSubmit={handleFormSubmit}>*/}
-                        {/*    <input autoFocus={true} className="text-black rounded-[4px] p-[4px]"*/}
-                        {/*           placeholder={"enter a pokemon to find!"} onChange={(e) => {*/}
-                        {/*        setPokemonInputValue(e.target.value);*/}
-                        {/*    }}/>*/}
-                        {/*</form>*/}
-                        <PokemonSearchForm pokemonHistory={pokemonHistory} didYouMeanStr={didYouMeanStr} currentPokemonParam={params.pokemon}/>
+                        <PokemonSearchForm pokemonHistory={pokemonHistory} didYouMeanStr={didYouMeanStr}
+                                           currentPokemonParam={params.pokemon}/>
                     </div>
                 </>
             }
