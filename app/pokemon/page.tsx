@@ -1,7 +1,7 @@
 "use client";
 import PokemonSearchForm from "@/app/pokemon/PokemonSearchForm";
 import {useRouter, useSearchParams} from "next/navigation";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {getUserByUsername, getUsername, getUserPokemonHistory} from "@/app/pokemon/[pokemon]/serverActions";
 import {PokemonDBEntry} from "@/app/pokemon/PokemonDBTypes";
 import {toCapitalize} from "@/utils/StringUtils";
@@ -19,17 +19,35 @@ export default function PokemonHome() {
 
     const [pokemonHistory, setPokemonHistory] = useState<PokemonDBEntry[]>([]);
 
+    // function isPokemonGen1(){
+    //     return this.getPokemonNumber() <= 151;
+    // }
     useEffect(() => {
         getUserPokemonHistory(userId)
             .then((res) => {
-                console.log("history was:", res);
                 setPokemonHistory(res);
+                
             }).catch(console.error);
         getUsername(userId)
             .then((res) => {
                 setCurrentUsername(res);
             }).catch(console.error);
     }, [userId]);
+    
+    useEffect(() => {
+        console.log("")
+        console.log("")
+        console.log("")
+        console.log("")
+        let count = 0;
+        pokemonHistory.forEach((pokemon) => {
+           if(pokemon.number > 151) {
+               count++;
+               console.log(`Pokemon ${pokemon.name} is NOT a gen 1 pokemon.`);
+           }
+        });
+        console.log(`You are missing ${151 - pokemonHistory.length + count} from gen 1. You have ${count} pokemon that are not in gen 1.`);
+    }, [pokemonHistory]);
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         event.preventDefault();
@@ -40,6 +58,7 @@ export default function PokemonHome() {
     return (
         <main className="flex justify-center items-center flex-col min-w-full min-h-screen gap-4">
             <span>Welcome to your PokeDex {currentUsername}!</span>
+            <span>You have caught {pokemonHistory.length} Pokemon</span>
 
             {/*{pokemonHistory.length > 0 &&*/}
                 <PokemonSearchForm pokemonHistory={pokemonHistory} showDidYouMean={false} didYouMeanStr={""}

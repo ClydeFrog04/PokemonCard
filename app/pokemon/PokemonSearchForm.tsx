@@ -54,6 +54,7 @@ export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, curren
     const getSelectItems = () => {
         // if (pokemonHistory.length > 0) {
             return pokemonHistory.map((poke) => {
+
                 return <option value={poke.name} key={poke.number}>{poke.name}</option>;
             });
         // }
@@ -63,7 +64,7 @@ export default function PokemonSearchForm({pokemonHistory, didYouMeanStr, curren
         <form className={"grid gap-4"} action="" onSubmit={handleFormSubmit}>
             {(didYouMeanStr !== "none" && didYouMeanStr !== "") &&
                 <Link className="bg-blue-500 p-2 rounded-[4px] hover:bg-blue-800"
-                      href={`/pokemon/${didYouMeanStr}`}>Did you
+                      href={`/pokemon/${didYouMeanStr}?userId=${searchParams.get("userId")}`}>Did you
                     mean &quot;{toCapitalize(didYouMeanStr)}&quot;?</Link>
             }
             <select className={""} value={currentSelectValue} name={"pokeSelect"} onChange={handlePokemonChange}>

@@ -1,7 +1,7 @@
 import type {Metadata} from "next";
 import {Inter} from "next/font/google";
 import "./globals.css";
-import React from "react";
+import React, {Suspense} from "react";
 import {RootProvider} from "@/contexts/RootProvider";
 
 const inter = Inter({subsets: ["latin"]});

@@ -19,6 +19,30 @@ export class PokemonSDK {
         return this.isShiny;
     }
 
+    public getPokemonGeneration(){
+        const pokeNumber = this.getPokemonNumber();
+        if(pokeNumber <= 151){
+            return 1;
+        } else if(pokeNumber <= 251){
+            return 2;
+        } else if(pokeNumber <= 386){
+            return 3;
+        } else if(pokeNumber <= 493){
+            return 4;
+        } else if(pokeNumber <= 649){
+            return 5;
+        } else if(pokeNumber <= 721){
+            return 6;
+        } else if(pokeNumber <= 809){
+            return 7;
+        } else if(pokeNumber <= 905){
+            return 8;
+        } else if(pokeNumber <= 1025){
+            return 9;
+        }
+        return -1;
+    }
+
     /*
     const lookForFrontSprite = (data: PokemonT | null) => {
         const defaultLogo = "https://press.pokemon.com/en/products/Pokemon-Logo-55300";
@@ -118,6 +142,16 @@ export class PokemonSDK {
     public getPokemonDefenseStatName() {
         if (!this.pokemon) return 0;
         return this.pokemon.stats[2].stat.name;
+    }
+
+    public getPokemonHpStat() {
+        if (!this.pokemon) return 0;
+        return this.pokemon.stats[0].base_stat;
+    }
+
+    public getPokemonHpStatName() {
+        if (!this.pokemon) return 0;
+        return this.pokemon.stats[0].stat.name;
     }
 
     public getPokemonSpeed() {

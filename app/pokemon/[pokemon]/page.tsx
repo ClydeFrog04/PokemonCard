@@ -111,6 +111,26 @@ export default function Pokemon({params}: { params: { pokemon: string } }) {
                          before:rounded-t-lg
                          before:rounded-b-[51%]
                          `}>
+                            <div className="topInfo absolute top-2 flex justify-around w-full">
+                                <span
+                                    className="text-black font-bold z-20 bg-white p-1 pl-3 pr-3 rounded-3xl">
+                                #{pokeSdk.getPokemonNumber()}
+                            </span>
+                                <span
+                                    className="text-black font-bold z-20 bg-white p-1 pl-3 pr-3 rounded-3xl">
+                                gen{pokeSdk.getPokemonGeneration()}
+                            </span>
+                                <div
+                                    className="stat flex z-20 items-center justify-center bg-white p-1 pl-3 pr-3 rounded-3xl right-2">
+                                <span className="text-black font-bold text-sm">
+                                    {pokeSdk.getPokemonHpStatName()}
+                                </span>
+                                    <span className="text-black font-bold">
+                                     {pokeSdk.getPokemonHpStat()}
+                                 </span>
+                                </div>
+                            </div>
+
                             <Image
                                 className="z-10"
                                 src={displaySprite.current}
