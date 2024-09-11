@@ -3,6 +3,7 @@ import {Inter} from "next/font/google";
 import "./globals.css";
 import React, {Suspense} from "react";
 import {RootProvider} from "@/contexts/RootProvider";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -17,12 +18,14 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-        <body className={inter.className}>
-        <RootProvider>
-            {children}
-        </RootProvider>
-        </body>
-        </html>
+        <SessionProviderWrapper>
+            <html lang="en">
+            <body className={inter.className}>
+            <RootProvider>
+                {children}
+            </RootProvider>
+            </body>
+            </html>
+        </SessionProviderWrapper>
     );
 }

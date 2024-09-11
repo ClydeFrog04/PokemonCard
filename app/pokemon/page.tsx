@@ -7,11 +7,15 @@ import {PokemonDBEntry} from "@/app/pokemon/PokemonDBTypes";
 import {toCapitalize} from "@/utils/StringUtils";
 import {revalidatePath} from "next/cache";
 import {catchClause} from "@babel/types";
+import {useSession} from "next-auth/react";
+import {getIdToken} from "@/utils/sessionTokenAccessor";
+import {decrypt} from "@/utils/encryption";
 
 export default function PokemonHome() {
+    const session = useSession();
     const searchParams = useSearchParams().get("userId");
     const router = useRouter();
-    const [userId, setUserId] = useState(Number(searchParams || 1));
+    const [userId, setUserId] = useState(Number(searchParams || 1));//todo: redirect url from login should add search param for found user
     const [currentUsername, setCurrentUsername] = useState("");
 
     const [userSearchName, setUserSearchName] = useState("");
@@ -22,6 +26,14 @@ export default function PokemonHome() {
     // function isPokemonGen1(){
     //     return this.getPokemonNumber() <= 151;
     // }
+    useEffect(() => {
+        if(session.status === "authenticated"){
+            fetch("/api/auth/idToken", {method: "GET"}).then((res) => res.json()).then((res) => {
+                console.log(res);
+            }).catch(console.error);
+        }
+    }, [session.status]);
+
     useEffect(() => {
         getUserPokemonHistory(userId)
             .then((res) => {
@@ -57,6 +69,10 @@ export default function PokemonHome() {
 
     return (
         <main className="flex justify-center items-center flex-col min-w-full min-h-screen gap-4">
+            <button onClick={(event) => {
+                event.preventDefault();
+                logout();
+            }}>Log Out</button>
             <span>Welcome to your PokeDex {currentUsername}!</span>
             <span>You have caught {pokemonHistory.length} Pokemon</span>
 

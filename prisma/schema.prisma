@@ -11,25 +11,29 @@ datasource db {
 }
 
 model Pokemon {
-  id     Int    @id @default(autoincrement())
-  name   String
-  type   String
-  number Int
+  id             Int              @id @default(autoincrement())
+  name           String
+  type           String
+  number         Int
   // PokemonHistory PokemonHistory[]
-  User   User?  @relation(fields: [userId], references: [id])
-  userId Int?
+  User           User?            @relation(fields: [userId], references: [id])
+  userId         Int?
+  PokemonHistory PokemonHistory[]
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
+  id             Int              @id @default(autoincrement())
   name           String
   PokemonHistory Pokemon[]
+  PokemonHistory PokemonHistory[]
 }
 
-// model PokemonHistory {
-//   id        Int     @id @default(autoincrement())
-//   user      User    @relation(fields: [userId], references: [id])
-//   userId    Int
-//   pokemon   Pokemon @relation(fields: [pokemonId], references: [id])
-//   pokemonId Int
-// }
+model PokemonHistory {
+  id Int @id @default(autoincrement())
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  pokemon   Pokemon @relation(fields: [pokemonId], references: [id])
+  pokemonId Int
+}

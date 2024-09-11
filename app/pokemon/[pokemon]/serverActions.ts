@@ -9,6 +9,7 @@ export async function addPokemonToUserHistoryIfNotExists(userId: number, pokemon
     type: string,
     number: number
 }) {
+
     const pokeId = await prisma.pokemon.findFirst({where: {name: pokemon.name, userId: userId}});
     return prisma.pokemon.upsert({
         create: {
@@ -43,6 +44,17 @@ export async function deleteAllPokemonForUser(userId: number) {
             userId: userId
         }
     });
+}
+
+export async function updateUserName(userId: number, name: string){
+    return prisma.user.update({
+        where:{
+            id: userId
+        },
+        data:{
+            name: name,
+        }
+    })
 }
 
 export async function doesUserExist(name: string) {
